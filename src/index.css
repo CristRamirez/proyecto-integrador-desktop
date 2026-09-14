@@ -1,0 +1,87 @@
+@import "tailwindcss";
+@import "@fontsource/ibm-plex-sans/400.css";
+@import "@fontsource/ibm-plex-sans/500.css";
+@import "@fontsource/ibm-plex-sans/600.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+@import "@fontsource/ibm-plex-serif/600.css";
+
+/* Paleta única del sistema. Cambiar acá y cambia toda la app. */
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-serif: "IBM Plex Serif", ui-serif, Georgia, serif;
+
+  --color-paper: #f2f1ec;
+  --color-surface: #fbfaf7;
+  --color-line: #d5d0c6;
+  --color-line-strong: #b2ab9d;
+
+  --color-ink: #1a1815;
+  --color-ink-soft: #5b564d;
+
+  --color-rail: #33302b;
+  --color-rail-soft: #b3aca0;
+  --color-rail-line: #46423b;
+
+  --color-accent: #6d6459;
+  --color-accent-soft: #e4e0d8;
+
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* App de escritorio: sin selección accidental de chrome ni arrastre de imágenes */
+body {
+  user-select: none;
+  cursor: default;
+}
+
+input,
+textarea {
+  user-select: text;
+}
+
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-line-strong);
+  border: 3px solid var(--color-paper);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 1px;
+}
+
+/* Sobre el rail oscuro la tinta no se ve: el foco va en claro */
+aside :focus-visible {
+  outline-color: var(--color-rail-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
