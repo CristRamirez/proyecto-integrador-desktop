@@ -83,7 +83,7 @@ export default function Login({ onLogin }) {
           </button>
 
           <p className="mt-6 text-center font-mono text-[12px] text-ink-soft">
-            Prueba: admin / 1234
+            Prueba: admin / admin1234
           </p>
         </form>
       </div>
