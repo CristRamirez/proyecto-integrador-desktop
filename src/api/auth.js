@@ -44,6 +44,7 @@ function normalizarUsuario(u) {
     nombre: u.nombreCompleto || u.nombreUsuario,
     nombreUsuario: u.nombreUsuario,
     rol: u.rol,
+    modulos: Array.isArray(u.modulos) ? u.modulos : [],
   }
 }
 

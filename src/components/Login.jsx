@@ -81,10 +81,6 @@ export default function Login({ onLogin }) {
           >
             {cargando ? 'Ingresando…' : 'Ingresar'}
           </button>
-
-          <p className="mt-6 text-center font-mono text-[12px] text-ink-soft">
-            Prueba: admin / admin1234
-          </p>
         </form>
       </div>
     </div>

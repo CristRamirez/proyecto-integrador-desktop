@@ -1,6 +1,4 @@
-const MODULOS = [{ id: 'internos', label: 'Internos' }]
-
-export default function Sidebar({ activo, onSelect }) {
+export default function Sidebar({ modulos = [], activo, onSelect }) {
   return (
     <aside className="flex w-60 shrink-0 flex-col border-r border-rail-line bg-rail">
       <div className="flex h-14 items-center border-b border-rail-line px-4">
@@ -14,27 +12,33 @@ export default function Sidebar({ activo, onSelect }) {
           Módulos
         </p>
 
-        <ul>
-          {MODULOS.map(({ id, label }) => {
-            const activa = activo === id
-            return (
-              <li key={id}>
-                <button
-                  type="button"
-                  onClick={() => onSelect(id)}
-                  aria-current={activa ? 'page' : undefined}
-                  className={`w-full cursor-pointer px-4 py-3 text-left text-[15px] transition-colors duration-150 ${
-                    activa
-                      ? 'bg-accent font-semibold text-white'
-                      : 'text-rail-soft hover:bg-white/6 hover:text-white'
-                  }`}
-                >
-                  {label}
-                </button>
-              </li>
-            )
-          })}
-        </ul>
+        {modulos.length === 0 ? (
+          <p className="px-4 py-3 text-[14px] text-rail-soft/70">
+            Sin módulos para tu rol
+          </p>
+        ) : (
+          <ul>
+            {modulos.map(({ id, label }) => {
+              const activa = activo === id
+              return (
+                <li key={id}>
+                  <button
+                    type="button"
+                    onClick={() => onSelect(id)}
+                    aria-current={activa ? 'page' : undefined}
+                    className={`w-full cursor-pointer px-4 py-3 text-left text-[15px] transition-colors duration-150 ${
+                      activa
+                        ? 'bg-accent font-semibold text-white'
+                        : 'text-rail-soft hover:bg-white/6 hover:text-white'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        )}
       </nav>
 
       <div className="border-t border-rail-line px-4 py-3 font-mono text-[11px] text-rail-soft/60">
