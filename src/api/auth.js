@@ -1,4 +1,4 @@
-const BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api').replace(/\/+$/, '')
+const BASE = (import.meta.env.VITE_API_URL ?? 'https://proyecto-integrador-backend.ramirezcris-cpr.workers.dev/api').replace(/\/+$/, '')
 
 const CLAVE_TOKEN = 'sesion.token'
 const CLAVE_USUARIO = 'sesion.usuario'
