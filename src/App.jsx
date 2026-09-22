@@ -6,7 +6,7 @@ import { restaurarSesion, cerrarSesion } from './api/auth'
 
 export default function App() {
   const [sesion, setSesion] = useState(null)
-  const [modulo, setModulo] = useState('internos')
+  const [modulo, setModulo] = useState(null)
   const [cargando, setCargando] = useState(true)
 
   useEffect(() => {
@@ -28,6 +28,7 @@ export default function App() {
 
   function salir() {
     cerrarSesion()
+    setModulo(null)
     setSesion(null)
   }
 
@@ -43,11 +44,15 @@ export default function App() {
 
   if (!sesion) return <Login onLogin={setSesion} />
 
+  const modulos = sesion.usuario.modulos ?? []
+  const activo = modulos.some((m) => m.id === modulo) ? modulo : (modulos[0]?.id ?? null)
+  const seccion = modulos.find((m) => m.id === activo)?.label ?? '—'
+
   return (
     <div className="flex h-full">
-      <Sidebar activo={modulo} onSelect={setModulo} />
+      <Sidebar modulos={modulos} activo={activo} onSelect={setModulo} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar seccion="Internos" usuario={sesion.usuario} onLogout={salir} />
+        <Topbar seccion={seccion} usuario={sesion.usuario} onLogout={salir} />
         <main className="min-h-0 flex-1" />
       </div>
     </div>
