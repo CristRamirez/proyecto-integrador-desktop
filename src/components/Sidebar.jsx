@@ -1,3 +1,9 @@
+// El back manda los módulos como nombres sueltos ("internos", "cobranzas").
+// El nombre es el identificador; acá solo se lo acomoda para mostrarlo.
+function etiqueta(nombre) {
+  return nombre.charAt(0).toUpperCase() + nombre.slice(1)
+}
+
 export default function Sidebar({ modulos = [], activo, onSelect }) {
   return (
     <aside className="flex w-60 shrink-0 flex-col border-r border-rail-line bg-rail">
@@ -18,13 +24,13 @@ export default function Sidebar({ modulos = [], activo, onSelect }) {
           </p>
         ) : (
           <ul>
-            {modulos.map(({ id, label }) => {
-              const activa = activo === id
+            {modulos.map((nombre) => {
+              const activa = activo === nombre
               return (
-                <li key={id}>
+                <li key={nombre}>
                   <button
                     type="button"
-                    onClick={() => onSelect(id)}
+                    onClick={() => onSelect(nombre)}
                     aria-current={activa ? 'page' : undefined}
                     className={`w-full cursor-pointer px-4 py-3 text-left text-[15px] transition-colors duration-150 ${
                       activa
@@ -32,7 +38,7 @@ export default function Sidebar({ modulos = [], activo, onSelect }) {
                         : 'text-rail-soft hover:bg-white/6 hover:text-white'
                     }`}
                   >
-                    {label}
+                    {etiqueta(nombre)}
                   </button>
                 </li>
               )

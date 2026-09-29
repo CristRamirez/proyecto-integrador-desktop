@@ -45,14 +45,13 @@ export default function App() {
   if (!sesion) return <Login onLogin={setSesion} />
 
   const modulos = sesion.usuario.modulos ?? []
-  const activo = modulos.some((m) => m.id === modulo) ? modulo : (modulos[0]?.id ?? null)
-  const seccion = modulos.find((m) => m.id === activo)?.label ?? '—'
+  const activo = modulos.includes(modulo) ? modulo : (modulos[0] ?? null)
 
   return (
     <div className="flex h-full">
       <Sidebar modulos={modulos} activo={activo} onSelect={setModulo} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar seccion={seccion} usuario={sesion.usuario} onLogout={salir} />
+        <Topbar seccion={activo ?? '—'} usuario={sesion.usuario} onLogout={salir} />
         <main className="min-h-0 flex-1" />
       </div>
     </div>
