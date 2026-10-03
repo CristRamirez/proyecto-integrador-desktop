@@ -64,6 +64,32 @@ export function Campo({ etiqueta, obligatorio, error, className = '', children }
   )
 }
 
+export function Seccion({ titulo, children }) {
+  return (
+    <section className="border border-line bg-surface px-7 py-6 rounded-sm">
+      <h2 className="mb-5 font-serif text-[20px] font-semibold text-ink">{titulo}</h2>
+      {children}
+    </section>
+  )
+}
+
+export function Dato({ etiqueta, className = '', children }) {
+  return (
+    <div className={className}>
+      <dt className="font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">{etiqueta}</dt>
+      <dd className="mt-1 text-[17px] text-ink">{children || children === 0 ? children : '—'}</dd>
+    </div>
+  )
+}
+
+export function Marca({ children }) {
+  return (
+    <span className="inline-block rounded-xs border border-ink px-2 py-0.5 font-mono text-[12px] tracking-[0.08em] text-ink uppercase">
+      {children}
+    </span>
+  )
+}
+
 export function Aviso({ children }) {
   return (
     <p

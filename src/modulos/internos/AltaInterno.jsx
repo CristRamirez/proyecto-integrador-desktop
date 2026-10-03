@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { altaInterno, listarObrasSociales, verificarDni } from '../../api/internos'
-import { Aviso, Boton, Campo, Etiqueta, claseInput } from '../../components/ui'
+import { Aviso, Boton, Campo, Etiqueta, Seccion, claseInput } from '../../components/ui'
 
 const MINIMO_CONTACTOS = 2
 
@@ -91,15 +91,6 @@ function errorDelBack(err) {
     default:
       return { general: err.message }
   }
-}
-
-function Seccion({ titulo, children }) {
-  return (
-    <section className="border border-line bg-surface px-7 py-6 rounded-sm">
-      <h2 className="mb-5 font-serif text-[20px] font-semibold text-ink">{titulo}</h2>
-      {children}
-    </section>
-  )
 }
 
 export default function AltaInterno({ onCancelar, onCreado }) {

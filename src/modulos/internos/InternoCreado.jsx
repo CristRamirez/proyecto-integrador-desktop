@@ -1,15 +1,7 @@
-import { Boton, Icono } from '../../components/ui'
+import { Boton, Dato, Icono } from '../../components/ui'
+import { fecha } from './formato'
 
-function Dato({ etiqueta, children }) {
-  return (
-    <div>
-      <dt className="font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">{etiqueta}</dt>
-      <dd className="mt-1 text-[17px] text-ink">{children || '—'}</dd>
-    </div>
-  )
-}
-
-export default function InternoCreado({ interno, onOtro, onVolver }) {
+export default function InternoCreado({ interno, onOtro, onVolver, onVerFicha }) {
   const legajo = interno.legajos?.[0]?.numero
 
   return (
@@ -32,7 +24,7 @@ export default function InternoCreado({ interno, onOtro, onVolver }) {
 
         <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-line pt-6">
           <Dato etiqueta="DNI">{interno.dni}</Dato>
-          <Dato etiqueta="Fecha de ingreso">{interno.fecha_ingreso}</Dato>
+          <Dato etiqueta="Fecha de ingreso">{fecha(interno.fecha_ingreso)}</Dato>
           <Dato etiqueta="Obra social">{interno.obra_social}</Dato>
           <Dato etiqueta="Judicializado">{interno.judicializado ? 'Sí' : 'No'}</Dato>
           <Dato etiqueta="Contactos familiares">{interno.contactos?.length}</Dato>
@@ -43,6 +35,9 @@ export default function InternoCreado({ interno, onOtro, onVolver }) {
       <div className="mt-8 flex justify-end gap-3">
         <Boton variante="secundario" icono="volver" onClick={onVolver}>
           Volver al padrón
+        </Boton>
+        <Boton variante="secundario" icono="persona" onClick={onVerFicha}>
+          Ver ficha
         </Boton>
         <Boton icono="mas" onClick={onOtro}>
           Cargar otro interno

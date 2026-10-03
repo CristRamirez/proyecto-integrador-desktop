@@ -1,24 +1,11 @@
 import { useEffect, useState } from 'react'
 import { buscarInternos } from '../../api/internos'
-import { Aviso, Boton, Campo, claseInput } from '../../components/ui'
+import { Aviso, Boton, Campo, Marca, claseInput } from '../../components/ui'
+import { fecha } from './formato'
 
 const ESPERA_BUSQUEDA = 300
 
-function fecha(iso) {
-  if (!iso) return '—'
-  const [anio, mes, dia] = iso.slice(0, 10).split('-')
-  return `${dia}/${mes}/${anio}`
-}
-
-function Marca({ children }) {
-  return (
-    <span className="inline-block rounded-xs border border-ink px-2 py-0.5 font-mono text-[12px] tracking-[0.08em] text-ink uppercase">
-      {children}
-    </span>
-  )
-}
-
-export default function Padron({ onNuevo }) {
+export default function Padron({ onNuevo, onAbrir }) {
   const [texto, setTexto] = useState('')
   const [q, setQ] = useState('')
   const [estado, setEstado] = useState('activo')
@@ -123,9 +110,22 @@ export default function Padron({ onNuevo }) {
             </thead>
             <tbody>
               {internos.map((i) => (
-                <tr key={i.id} className="border-b border-line last:border-b-0">
+                <tr
+                  key={i.id}
+                  onClick={() => onAbrir(i.id)}
+                  className="cursor-pointer border-b border-line transition-colors duration-150 last:border-b-0 hover:bg-accent-soft"
+                >
                   <td className="px-5 py-4 font-semibold">
-                    {i.apellido}, {i.nombre}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onAbrir(i.id)
+                      }}
+                      className="cursor-pointer text-left underline-offset-4 hover:underline focus-visible:underline"
+                    >
+                      {i.apellido}, {i.nombre}
+                    </button>
                   </td>
                   <td className="px-5 py-4 font-mono">{i.dni}</td>
                   <td className="px-5 py-4 font-mono text-[14px]">{i.legajo ?? '—'}</td>

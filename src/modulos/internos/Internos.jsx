@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import AltaInterno from './AltaInterno'
+import FichaInterno from './FichaInterno'
 import InternoCreado from './InternoCreado'
 import Padron from './Padron'
 
@@ -19,11 +20,16 @@ function Vista({ vista, setVista }) {
         interno={vista.interno}
         onOtro={() => setVista({ tipo: 'alta' })}
         onVolver={() => setVista({ tipo: 'padron' })}
+        onVerFicha={() => setVista({ tipo: 'ficha', id: vista.interno.id })}
       />
     )
   }
 
-  return <Padron onNuevo={() => setVista({ tipo: 'alta' })} />
+  if (vista.tipo === 'ficha') {
+    return <FichaInterno id={vista.id} onVolver={() => setVista({ tipo: 'padron' })} />
+  }
+
+  return <Padron onNuevo={() => setVista({ tipo: 'alta' })} onAbrir={(id) => setVista({ tipo: 'ficha', id })} />
 }
 
 export default function Internos() {

@@ -16,6 +16,11 @@ export async function buscarInternos({ q, estado, judicializado, pagina = 1, por
   return { internos: internos ?? [], paginacion }
 }
 
+export async function obtenerInterno(id) {
+  const { interno } = await pedir(`/internos/${encodeURIComponent(id)}`)
+  return interno
+}
+
 export async function verificarDni(dni) {
   const { duplicado, interno } = await pedir(`/internos/verificar-dni/${encodeURIComponent(dni)}`)
   return duplicado ? interno : null
