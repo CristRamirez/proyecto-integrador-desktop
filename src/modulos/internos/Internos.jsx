@@ -1,23 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { Boton } from '../../components/ui'
 import AltaInterno from './AltaInterno'
 import InternoCreado from './InternoCreado'
-
-function Padron({ onNuevo }) {
-  return (
-    <div className="mx-auto max-w-5xl px-8 py-8">
-      <div className="flex items-center justify-between gap-4">
-        <h1 className="font-serif text-[28px] font-semibold text-ink">Padrón de internos</h1>
-        <Boton icono="persona" onClick={onNuevo}>
-          Nuevo interno
-        </Boton>
-      </div>
-      <p className="mt-10 border border-dashed border-line-strong px-6 py-10 text-center text-[16px] text-ink-soft rounded-sm">
-        La búsqueda del padrón todavía no está disponible.
-      </p>
-    </div>
-  )
-}
+import Padron from './Padron'
 
 function Vista({ vista, setVista }) {
   if (vista.tipo === 'alta') {

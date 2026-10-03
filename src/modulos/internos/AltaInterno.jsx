@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { altaInterno, listarObrasSociales } from '../../api/internos'
+import { altaInterno, listarObrasSociales, verificarDni } from '../../api/internos'
 import { Aviso, Boton, Campo, Etiqueta, claseInput } from '../../components/ui'
 
 const MINIMO_CONTACTOS = 2
@@ -26,6 +26,9 @@ function hoy() {
 }
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const DNI = /^\d{7,8}$/
+
+const mensajeDuplicado = (interno) => `Ya hay un interno activo con este DNI: ${interno.apellido}, ${interno.nombre}`
 
 function validar(f) {
   const errores = {}
@@ -35,7 +38,7 @@ function validar(f) {
 
   const dni = f.dni.trim()
   if (!dni) errores.dni = 'Falta el DNI'
-  else if (!/^\d{7,8}$/.test(dni)) errores.dni = 'El DNI tiene que tener 7 u 8 números, sin puntos'
+  else if (!DNI.test(dni)) errores.dni = 'El DNI tiene que tener 7 u 8 números, sin puntos'
 
   if (f.fecha_nacimiento && f.fecha_nacimiento > hoy()) errores.fecha_nacimiento = 'No puede ser una fecha futura'
   if (f.fecha_ingreso && f.fecha_ingreso > hoy()) errores.fecha_ingreso = 'No puede ser una fecha futura'
@@ -104,7 +107,9 @@ export default function AltaInterno({ onCancelar, onCreado }) {
   const [errores, setErrores] = useState({})
   const [obrasSociales, setObrasSociales] = useState([])
   const [guardando, setGuardando] = useState(false)
+  const [duplicado, setDuplicado] = useState(null)
   const arriba = useRef(null)
+  const dniConsultado = useRef('')
 
   useEffect(() => {
     let vivo = true
@@ -119,6 +124,26 @@ export default function AltaInterno({ onCancelar, onCreado }) {
   function cambiar(campo, valor) {
     setForm((f) => ({ ...f, [campo]: valor }))
     setErrores((e) => ({ ...e, [campo]: undefined, general: undefined }))
+  }
+
+  function cambiarDni(valor) {
+    cambiar('dni', valor)
+    if (valor !== dniConsultado.current) {
+      dniConsultado.current = ''
+      setDuplicado(null)
+    }
+  }
+
+  async function consultarDni() {
+    const dni = form.dni.trim()
+    if (!DNI.test(dni) || dni === dniConsultado.current) return
+    dniConsultado.current = dni
+    try {
+      const interno = await verificarDni(dni)
+      if (dniConsultado.current === dni) setDuplicado(interno ? { dni, interno } : null)
+    } catch {
+      if (dniConsultado.current === dni) dniConsultado.current = ''
+    }
   }
 
   function cambiarContacto(i, campo, valor) {
@@ -148,6 +173,7 @@ export default function AltaInterno({ onCancelar, onCreado }) {
     if (guardando) return
 
     const encontrados = validar(form)
+    if (!encontrados.dni && duplicado?.dni === form.dni.trim()) encontrados.dni = mensajeDuplicado(duplicado.interno)
     setErrores(encontrados)
     if (Object.keys(encontrados).length) {
       arriba.current?.scrollIntoView({ behavior: 'smooth' })
@@ -206,14 +232,15 @@ export default function AltaInterno({ onCancelar, onCreado }) {
                 aria-invalid={!!errores.nombre}
               />
             </Campo>
-            <Campo etiqueta="DNI" obligatorio error={errores.dni}>
+            <Campo etiqueta="DNI" obligatorio error={errores.dni ?? (duplicado && mensajeDuplicado(duplicado.interno))}>
               <input
                 className={claseInput}
                 value={form.dni}
-                onChange={(e) => cambiar('dni', e.target.value.replace(/\D/g, '').slice(0, 8))}
+                onChange={(e) => cambiarDni(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                onBlur={consultarDni}
                 inputMode="numeric"
                 placeholder="Sin puntos"
-                aria-invalid={!!errores.dni}
+                aria-invalid={!!errores.dni || !!duplicado}
               />
             </Campo>
             <Campo etiqueta="Fecha de nacimiento" error={errores.fecha_nacimiento}>
