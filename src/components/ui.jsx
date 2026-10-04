@@ -52,7 +52,7 @@ export function Etiqueta({ children, obligatorio }) {
 }
 
 export const claseInput =
-  'h-12 w-full rounded-xs border border-line-strong bg-white px-4 text-[16px] text-ink aria-invalid:border-ink aria-invalid:border-2'
+  'h-12 w-full rounded-xs border border-line-strong bg-white px-4 text-[16px] text-ink aria-invalid:border-ink aria-invalid:border-2 disabled:bg-accent-soft disabled:text-ink-soft'
 
 export function Campo({ etiqueta, obligatorio, error, className = '', children }) {
   return (

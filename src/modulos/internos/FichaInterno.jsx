@@ -49,8 +49,8 @@ function Historial({ historial }) {
   )
 }
 
-export default function FichaInterno({ id, onVolver }) {
-  const [interno, setInterno] = useState(null)
+export default function FichaInterno({ id, inicial, guardado, onVolver, onEditar }) {
+  const [interno, setInterno] = useState(inicial ?? null)
   const [error, setError] = useState(null)
   const [intento, setIntento] = useState(0)
 
@@ -109,16 +109,28 @@ export default function FichaInterno({ id, onVolver }) {
             {!!interno.judicializado && <Marca>Judicial</Marca>}
             {interno.tiene_deuda && <Marca>Deuda</Marca>}
           </div>
+          {interno.modificado_en && (
+            <p className="mt-2 text-[14px] text-ink-soft">Última modificación: {fechaHora(interno.modificado_en)}</p>
+          )}
         </div>
         <div className="flex shrink-0 gap-3">
           <Boton icono="volver" variante="sutil" onClick={onVolver}>
             Volver
+          </Boton>
+          <Boton variante="secundario" onClick={() => onEditar(interno)}>
+            Modificar datos
           </Boton>
           <Boton variante="secundario" disabled title="Disponible cuando esté el módulo de Cobranzas">
             Cuenta corriente
           </Boton>
         </div>
       </div>
+
+      {guardado && (
+        <div className="mb-6">
+          <Aviso>Los cambios se guardaron correctamente.</Aviso>
+        </div>
+      )}
 
       <div className="space-y-6">
         <Seccion titulo="Datos personales">

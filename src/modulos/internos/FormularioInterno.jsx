@@ -1,10 +1,28 @@
 import { useEffect, useRef, useState } from 'react'
-import { altaInterno, listarObrasSociales, verificarDni } from '../../api/internos'
+import { altaInterno, listarObrasSociales, modificarInterno, verificarDni } from '../../api/internos'
 import { Aviso, Boton, Campo, Etiqueta, Seccion, claseInput } from '../../components/ui'
 
 const MINIMO_CONTACTOS = 2
 
 const contactoVacio = () => ({ clave: crypto.randomUUID(), nombre: '', parentesco: '', telefono: '', email: '' })
+
+const formularioDesde = (interno) => ({
+  apellido: interno.apellido ?? '',
+  nombre: interno.nombre ?? '',
+  dni: interno.dni ?? '',
+  fecha_nacimiento: interno.fecha_nacimiento?.slice(0, 10) ?? '',
+  fecha_ingreso: interno.fecha_ingreso?.slice(0, 10) ?? '',
+  obra_social_id: interno.obra_social_id ? String(interno.obra_social_id) : '',
+  judicializado: !!interno.judicializado,
+  datos_salud: interno.datos_salud ?? '',
+  contactos: (interno.contactos ?? []).map((c) => ({
+    clave: crypto.randomUUID(),
+    nombre: c.nombre ?? '',
+    parentesco: c.parentesco ?? '',
+    telefono: c.telefono ?? '',
+    email: c.email ?? '',
+  })),
+})
 
 const formularioVacio = () => ({
   apellido: '',
@@ -78,6 +96,14 @@ function armarCuerpo(f) {
   }
 }
 
+function cambiosEntre(original, actual) {
+  return Object.fromEntries(
+    Object.entries(actual).filter(
+      ([campo, valor]) => campo !== 'fecha_ingreso' && JSON.stringify(valor) !== JSON.stringify(original[campo]),
+    ),
+  )
+}
+
 function errorDelBack(err) {
   switch (err.codigo) {
     case 'DNI_INVALIDO':
@@ -88,13 +114,17 @@ function errorDelBack(err) {
       return { contactosGeneral: err.message }
     case 'OBRA_SOCIAL_INEXISTENTE':
       return { obra_social_id: err.message }
+    case 'SIN_CAMBIOS':
+      return { general: 'No hay cambios para guardar.' }
     default:
       return { general: err.message }
   }
 }
 
-export default function AltaInterno({ onCancelar, onCreado }) {
-  const [form, setForm] = useState(formularioVacio)
+export default function FormularioInterno({ interno, onCancelar, onGuardado }) {
+  const editando = !!interno
+  const [form, setForm] = useState(() => (editando ? formularioDesde(interno) : formularioVacio()))
+  const [original] = useState(() => (editando ? armarCuerpo(formularioDesde(interno)) : null))
   const [errores, setErrores] = useState({})
   const [obrasSociales, setObrasSociales] = useState([])
   const [guardando, setGuardando] = useState(false)
@@ -127,11 +157,12 @@ export default function AltaInterno({ onCancelar, onCreado }) {
 
   async function consultarDni() {
     const dni = form.dni.trim()
-    if (!DNI.test(dni) || dni === dniConsultado.current) return
+    if (!DNI.test(dni) || dni === dniConsultado.current || dni === original?.dni) return
     dniConsultado.current = dni
     try {
-      const interno = await verificarDni(dni)
-      if (dniConsultado.current === dni) setDuplicado(interno ? { dni, interno } : null)
+      const otro = await verificarDni(dni)
+      const esOtro = otro && otro.id !== interno?.id
+      if (dniConsultado.current === dni) setDuplicado(esOtro ? { dni, interno: otro } : null)
     } catch {
       if (dniConsultado.current === dni) dniConsultado.current = ''
     }
@@ -171,10 +202,18 @@ export default function AltaInterno({ onCancelar, onCreado }) {
       return
     }
 
+    const cuerpo = armarCuerpo(form)
+    const cambios = editando ? cambiosEntre(original, cuerpo) : cuerpo
+    if (editando && !Object.keys(cambios).length) {
+      setErrores({ general: 'No hay cambios para guardar.' })
+      arriba.current?.scrollIntoView({ behavior: 'smooth' })
+      return
+    }
+
     setGuardando(true)
     try {
-      const interno = await altaInterno(armarCuerpo(form))
-      onCreado(interno)
+      const guardado = editando ? await modificarInterno(interno.id, cambios) : await altaInterno(cuerpo)
+      onGuardado(guardado)
     } catch (err) {
       setErrores(errorDelBack(err))
       setGuardando(false)
@@ -189,8 +228,10 @@ export default function AltaInterno({ onCancelar, onCreado }) {
     <form onSubmit={guardar} noValidate className="mx-auto max-w-4xl px-8 py-8">
       <div ref={arriba} className="mb-6 flex items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-[28px] font-semibold text-ink">Alta de interno</h1>
-          <p className="mt-1 text-[15px] text-ink-soft">Los campos con * son obligatorios.</p>
+          <h1 className="font-serif text-[28px] font-semibold text-ink">{editando ? 'Modificar datos' : 'Alta de interno'}</h1>
+          <p className="mt-1 text-[15px] text-ink-soft">
+            {editando && `${interno.apellido}, ${interno.nombre}. `}Los campos con * son obligatorios.
+          </p>
         </div>
         <Boton icono="volver" variante="sutil" onClick={onCancelar} disabled={guardando}>
           Volver
@@ -252,11 +293,20 @@ export default function AltaInterno({ onCancelar, onCreado }) {
                 max={maximo}
                 onChange={(e) => cambiar('fecha_ingreso', e.target.value)}
                 aria-invalid={!!errores.fecha_ingreso}
+                disabled={editando}
               />
               {!errores.fecha_ingreso && (
-                <p className="mt-1.5 text-[14px] text-ink-soft">Si queda vacía se toma la de hoy. Después no se puede cambiar.</p>
+                <p className="mt-1.5 text-[14px] text-ink-soft">
+                  {editando ? 'No se puede modificar.' : 'Si queda vacía se toma la de hoy. Después no se puede cambiar.'}
+                </p>
               )}
             </Campo>
+            {editando && (
+              <Campo etiqueta="Legajo">
+                <input className={`${claseInput} font-mono`} value={interno.legajos?.[0]?.numero ?? 'Sin legajo'} disabled />
+                <p className="mt-1.5 text-[14px] text-ink-soft">No se puede modificar.</p>
+              </Campo>
+            )}
           </div>
         </Seccion>
 
@@ -382,7 +432,7 @@ export default function AltaInterno({ onCancelar, onCreado }) {
           Cancelar
         </Boton>
         <Boton type="submit" icono="check" disabled={guardando}>
-          {guardando ? 'Guardando…' : 'Guardar interno'}
+          {guardando ? 'Guardando…' : editando ? 'Guardar cambios' : 'Guardar interno'}
         </Boton>
       </div>
     </form>

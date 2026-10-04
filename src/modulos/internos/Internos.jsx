@@ -1,15 +1,25 @@
 import { useEffect, useRef, useState } from 'react'
-import AltaInterno from './AltaInterno'
 import FichaInterno from './FichaInterno'
+import FormularioInterno from './FormularioInterno'
 import InternoCreado from './InternoCreado'
 import Padron from './Padron'
 
 function Vista({ vista, setVista }) {
   if (vista.tipo === 'alta') {
     return (
-      <AltaInterno
+      <FormularioInterno
         onCancelar={() => setVista({ tipo: 'padron' })}
-        onCreado={(interno) => setVista({ tipo: 'creado', interno })}
+        onGuardado={(interno) => setVista({ tipo: 'creado', interno })}
+      />
+    )
+  }
+
+  if (vista.tipo === 'editar') {
+    return (
+      <FormularioInterno
+        interno={vista.interno}
+        onCancelar={() => setVista({ tipo: 'ficha', id: vista.interno.id })}
+        onGuardado={(interno) => setVista({ tipo: 'ficha', id: interno.id, interno, guardado: true })}
       />
     )
   }
@@ -26,7 +36,15 @@ function Vista({ vista, setVista }) {
   }
 
   if (vista.tipo === 'ficha') {
-    return <FichaInterno id={vista.id} onVolver={() => setVista({ tipo: 'padron' })} />
+    return (
+      <FichaInterno
+        id={vista.id}
+        inicial={vista.interno}
+        guardado={vista.guardado}
+        onVolver={() => setVista({ tipo: 'padron' })}
+        onEditar={(interno) => setVista({ tipo: 'editar', interno })}
+      />
+    )
   }
 
   return <Padron onNuevo={() => setVista({ tipo: 'alta' })} onAbrir={(id) => setVista({ tipo: 'ficha', id })} />
