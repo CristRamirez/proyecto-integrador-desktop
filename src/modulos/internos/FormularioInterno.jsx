@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { altaInterno, listarObrasSociales, modificarInterno, verificarDni } from '../../api/internos'
 import { Aviso, Boton, Campo, Etiqueta, Seccion, claseInput } from '../../components/ui'
+import { hoy } from './formato'
 
 const MINIMO_CONTACTOS = 2
 
@@ -35,13 +36,6 @@ const formularioVacio = () => ({
   datos_salud: '',
   contactos: Array.from({ length: MINIMO_CONTACTOS }, contactoVacio),
 })
-
-function hoy() {
-  const d = new Date()
-  const mes = String(d.getMonth() + 1).padStart(2, '0')
-  const dia = String(d.getDate()).padStart(2, '0')
-  return `${d.getFullYear()}-${mes}-${dia}`
-}
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const DNI = /^\d{7,8}$/

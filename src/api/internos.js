@@ -31,6 +31,11 @@ export async function altaInterno(datos) {
   return interno
 }
 
+export async function bajaInterno(id, datos) {
+  const { interno } = await pedir(`/internos/${encodeURIComponent(id)}/baja`, { method: 'POST', cuerpo: datos })
+  return interno
+}
+
 export async function modificarInterno(id, cambios) {
   const { interno } = await pedir(`/internos/${encodeURIComponent(id)}`, { method: 'PUT', cuerpo: cambios })
   return interno

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { obtenerInterno } from '../../api/internos'
 import { Aviso, Boton, Dato, Marca, Seccion } from '../../components/ui'
+import BajaInterno from './BajaInterno'
 import { edad, fecha, fechaHora } from './formato'
 
 function Contactos({ contactos }) {
@@ -53,6 +54,16 @@ export default function FichaInterno({ id, inicial, guardado, onVolver, onEditar
   const [interno, setInterno] = useState(inicial ?? null)
   const [error, setError] = useState(null)
   const [intento, setIntento] = useState(0)
+  const [aviso, setAviso] = useState(guardado ? 'Los cambios se guardaron correctamente.' : null)
+  const [dandoDeBaja, setDandoDeBaja] = useState(false)
+  const arriba = useRef(null)
+
+  function registrarBaja(actualizado) {
+    setInterno(actualizado)
+    setDandoDeBaja(false)
+    setAviso('El interno quedó dado de baja.')
+    arriba.current?.scrollIntoView({ behavior: 'smooth' })
+  }
 
   useEffect(() => {
     let vivo = true
@@ -98,7 +109,7 @@ export default function FichaInterno({ id, inicial, guardado, onVolver, onEditar
 
   return (
     <div className="mx-auto max-w-4xl px-8 py-8">
-      <div className="mb-6 flex items-start justify-between gap-4">
+      <div ref={arriba} className="mb-6 flex items-start justify-between gap-4">
         <div>
           <p className="font-mono text-[13px] tracking-[0.1em] text-ink-soft select-text">{legajo?.numero ?? 'Sin legajo'}</p>
           <h1 className="mt-1 font-serif text-[28px] font-semibold text-ink">
@@ -126,9 +137,9 @@ export default function FichaInterno({ id, inicial, guardado, onVolver, onEditar
         </div>
       </div>
 
-      {guardado && (
+      {aviso && (
         <div className="mb-6">
-          <Aviso>Los cambios se guardaron correctamente.</Aviso>
+          <Aviso>{aviso}</Aviso>
         </div>
       )}
 
@@ -162,6 +173,23 @@ export default function FichaInterno({ id, inicial, guardado, onVolver, onEditar
         <Seccion titulo="Historial de estados">
           <Historial historial={interno.historial} />
         </Seccion>
+
+        {interno.estado !== 'egresado' &&
+          (dandoDeBaja ? (
+            <BajaInterno interno={interno} onCancelar={() => setDandoDeBaja(false)} onBaja={registrarBaja} />
+          ) : (
+            <div className="flex justify-end">
+              <Boton
+                variante="sutil"
+                onClick={() => {
+                  setAviso(null)
+                  setDandoDeBaja(true)
+                }}
+              >
+                Dar de baja
+              </Boton>
+            </div>
+          ))}
       </div>
     </div>
   )
