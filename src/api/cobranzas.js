@@ -17,6 +17,17 @@ export async function obtenerCuentaCorriente(idInterno) {
   return { interno, cuotas: cuotas ?? [], total_adeudado: total_adeudado ?? 0 }
 }
 
+// Cuotas de un período de todos los internos, con el resumen para los indicadores.
+// El back todavía no tiene GET /cuotas: mientras falte responde RUTA_NO_ENCONTRADA
+// y la pantalla de Cobranzas cae a la búsqueda por interno.
+export async function listarCuotas({ anio, mes, estado, q, pagina = 1, porPagina = 20 }) {
+  const params = new URLSearchParams({ anio, mes, pagina, por_pagina: porPagina })
+  if (estado) params.set('estado', estado)
+  if (q?.trim()) params.set('q', q.trim())
+  const { cuotas, paginacion, resumen } = await pedir(`/cuotas?${params}`)
+  return { cuotas: cuotas ?? [], paginacion, resumen }
+}
+
 export async function registrarPago(idCuota, datos) {
   const { cuota, pagos } = await pedir(`/cuotas/${encodeURIComponent(idCuota)}/pagos`, { method: 'POST', cuerpo: datos })
   return { cuota, pagos: pagos ?? [] }

@@ -1,15 +1,13 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { obtenerCuentaCorriente } from '../../api/cobranzas'
-import { Aviso, Boton, Dato, Marca, Seccion } from '../../components/ui'
-import { fecha, hoy, moneda, periodo } from '../internos/formato'
+import { Aviso, Boton, Dato, Seccion } from '../../components/ui'
+import { fecha, moneda, periodo } from '../internos/formato'
+import { estaVencida, tieneSaldo } from './cuota'
+import EstadoCuota from './EstadoCuota'
 import RegistrarPago from './RegistrarPago'
 
 function centavos(valor) {
   return Math.round(valor * 100) / 100
-}
-
-function tieneSaldo(cuota) {
-  return cuota.estado !== 'anulada' && cuota.saldo_pendiente > 0
 }
 
 // Misma regla que el back: las anuladas se listan pero no suman.
@@ -46,7 +44,9 @@ function Pagos({ pagos }) {
   )
 }
 
-export default function CuentaCorriente({ id, onVolver }) {
+// cuotaInicial: desde el listado de Cobranzas se llega con "Registrar pago" de una
+// cuota puntual, y el formulario se abre apenas carga la cuenta corriente.
+export default function CuentaCorriente({ id, cuotaInicial, onVolver, etiquetaVolver = 'Volver a la ficha' }) {
   const [datos, setDatos] = useState(null)
   const [error, setError] = useState(null)
   const [intento, setIntento] = useState(0)
@@ -55,6 +55,7 @@ export default function CuentaCorriente({ id, onVolver }) {
   const [aviso, setAviso] = useState(null)
   const arriba = useRef(null)
   const formulario = useRef(null)
+  const pagarAlCargar = useRef(cuotaInicial)
 
   useEffect(() => {
     if (pagando) formulario.current?.scrollIntoView({ behavior: 'smooth' })
@@ -63,7 +64,13 @@ export default function CuentaCorriente({ id, onVolver }) {
   useEffect(() => {
     let vivo = true
     obtenerCuentaCorriente(id)
-      .then((d) => vivo && setDatos(d))
+      .then((d) => {
+        if (!vivo) return
+        setDatos(d)
+        const cuota = pagarAlCargar.current && d.cuotas.find((c) => c.id === pagarAlCargar.current)
+        pagarAlCargar.current = null
+        if (cuota && tieneSaldo(cuota)) setPagando(cuota)
+      })
       .catch((err) => vivo && setError(err.status === 404 ? 'El interno no existe.' : err.message))
     return () => {
       vivo = false
@@ -114,7 +121,7 @@ export default function CuentaCorriente({ id, onVolver }) {
         <Aviso>{error}</Aviso>
         <div className="flex gap-3">
           <Boton variante="secundario" icono="volver" onClick={onVolver}>
-            Volver a la ficha
+            {etiquetaVolver}
           </Boton>
           <Boton
             onClick={() => {
@@ -139,7 +146,7 @@ export default function CuentaCorriente({ id, onVolver }) {
 
   const { interno, cuotas, total_adeudado } = datos
   const conSaldo = cuotas.filter(tieneSaldo)
-  const vencidas = conSaldo.filter((c) => c.fecha_vencimiento < hoy())
+  const vencidas = cuotas.filter(estaVencida)
   const hayAnuladas = cuotas.some((c) => c.estado === 'anulada')
 
   return (
@@ -154,7 +161,7 @@ export default function CuentaCorriente({ id, onVolver }) {
           </h1>
         </div>
         <Boton icono="volver" variante="sutil" onClick={onVolver}>
-          Volver a la ficha
+          {etiquetaVolver}
         </Boton>
       </div>
 
@@ -196,7 +203,7 @@ export default function CuentaCorriente({ id, onVolver }) {
                   {cuotas.map((c) => {
                     const abierta = abiertas.has(c.id)
                     const anulada = c.estado === 'anulada'
-                    const vencida = tieneSaldo(c) && c.fecha_vencimiento < hoy()
+                    const vencida = estaVencida(c)
                     const importe = `py-3 pr-4 text-right font-mono ${anulada ? 'line-through' : ''}`
 
                     return (
@@ -205,10 +212,7 @@ export default function CuentaCorriente({ id, onVolver }) {
                           className={`border-b border-line ${anulada ? 'text-ink-soft' : ''} ${pagando?.id === c.id ? 'bg-accent-soft' : ''}`}
                         >
                           <td className="py-3 pr-4 font-semibold whitespace-nowrap capitalize">{periodo(c.periodo)}</td>
-                          <td className="py-3 pr-4">
-                            {fecha(c.fecha_vencimiento)}
-                            {vencida && <span className="block text-[13px] font-semibold">Vencida</span>}
-                          </td>
+                          <td className={`py-3 pr-4 ${vencida ? 'text-danger' : ''}`}>{fecha(c.fecha_vencimiento)}</td>
                           <td className={importe}>
                             {moneda(c.total)}
                             {c.interes_aplicado > 0 && (
@@ -234,7 +238,7 @@ export default function CuentaCorriente({ id, onVolver }) {
                           </td>
                           <td className={`${importe} font-semibold`}>{moneda(c.saldo_pendiente)}</td>
                           <td className="py-3 pr-4">
-                            <Marca>{c.estado}</Marca>
+                            <EstadoCuota cuota={c} />
                           </td>
                           <td className="py-3 text-right">
                             {tieneSaldo(c) && (

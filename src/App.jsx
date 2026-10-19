@@ -5,9 +5,11 @@ import Login from './components/Login'
 import { restaurarSesion, cerrarSesion } from './api/auth'
 import { onSesionVencida } from './api/cliente'
 import Internos from './modulos/internos/Internos'
+import Cobranzas from './modulos/cobranzas/Cobranzas'
 
 const PANTALLAS = {
   internos: Internos,
+  cobranzas: Cobranzas,
 }
 
 function EnConstruccion() {

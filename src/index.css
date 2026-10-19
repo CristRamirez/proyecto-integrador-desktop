@@ -26,6 +26,14 @@
   --color-accent: #6d6459;
   --color-accent-soft: #e4e0d8;
 
+  /* Estados de cobranza: al día, por vencer y vencido */
+  --color-ok: #4f6b3a;
+  --color-ok-soft: #e1e7d6;
+  --color-warn: #9a7420;
+  --color-warn-soft: #f1e7cc;
+  --color-danger: #9a3b2b;
+  --color-danger-soft: #f3ddd6;
+
   --radius-xs: 2px;
   --radius-sm: 3px;
 }

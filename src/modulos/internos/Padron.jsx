@@ -5,7 +5,9 @@ import { fecha } from './formato'
 
 const ESPERA_BUSQUEDA = 300
 
-export default function Padron({ onNuevo, onAbrir }) {
+// También lo usa Cobranzas para elegir el interno: ahí no se dan altas, así que sin
+// onNuevo no aparece el botón.
+export default function Padron({ titulo = 'Padrón de internos', subtitulo, onNuevo, onAbrir }) {
   const [texto, setTexto] = useState('')
   const [q, setQ] = useState('')
   const [estado, setEstado] = useState('activo')
@@ -52,10 +54,15 @@ export default function Padron({ onNuevo, onAbrir }) {
   return (
     <div className="mx-auto max-w-5xl px-8 py-8">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="font-serif text-[28px] font-semibold text-ink">Padrón de internos</h1>
-        <Boton icono="persona" onClick={onNuevo}>
-          Nuevo interno
-        </Boton>
+        <div>
+          <h1 className="font-serif text-[28px] font-semibold text-ink">{titulo}</h1>
+          {subtitulo && <p className="mt-1 text-[16px] text-ink-soft">{subtitulo}</p>}
+        </div>
+        {onNuevo && (
+          <Boton icono="persona" onClick={onNuevo}>
+            Nuevo interno
+          </Boton>
+        )}
       </div>
 
       <div className="mt-8 grid grid-cols-[1fr_200px_200px] gap-4">
