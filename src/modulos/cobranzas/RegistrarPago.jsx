@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { MEDIOS_PAGO, MEDIO_OBRA_SOCIAL, registrarPago } from '../../api/cobranzas'
+import { MEDIO_OBRA_SOCIAL, listarMediosPago, registrarPago } from '../../api/cobranzas'
 import { listarObrasSociales } from '../../api/internos'
 import { Aviso, Boton, Campo, Seccion, claseInput } from '../../components/ui'
 import { fecha, hoy, moneda, periodo } from '../internos/formato'
@@ -19,7 +19,7 @@ function etiqueta(nombre) {
   return nombre.charAt(0).toUpperCase() + nombre.slice(1)
 }
 
-function validar(form, saldo) {
+function validar(form, saldo, porObraSocial) {
   const errores = {}
   const monto = centavos(Number(form.monto))
 
@@ -28,8 +28,7 @@ function validar(form, saldo) {
   else if (monto > saldo) errores.monto = `No puede superar el saldo pendiente (${moneda(saldo)})`
 
   if (!form.medio_pago_id) errores.medio_pago_id = 'Falta el medio de pago'
-  else if (Number(form.medio_pago_id) === MEDIO_OBRA_SOCIAL && !form.obra_social_id)
-    errores.obra_social_id = 'Falta la obra social que paga'
+  else if (porObraSocial && !form.obra_social_id) errores.obra_social_id = 'Falta la obra social que paga'
 
   if (!form.fecha_pago) errores.fecha_pago = 'Falta la fecha de pago'
   else if (form.fecha_pago > hoy()) errores.fecha_pago = 'No puede ser una fecha futura'
@@ -42,7 +41,7 @@ function validar(form, saldo) {
   return errores
 }
 
-function armarCuerpo(form) {
+function armarCuerpo(form, porObraSocial) {
   const cuerpo = {
     medio_pago_id: Number(form.medio_pago_id),
     monto: centavos(Number(form.monto)),
@@ -53,7 +52,7 @@ function armarCuerpo(form) {
 
   if (comprobante) cuerpo.numero_comprobante = comprobante
   if (observaciones) cuerpo.observaciones = observaciones
-  if (cuerpo.medio_pago_id === MEDIO_OBRA_SOCIAL) cuerpo.obra_social_id = Number(form.obra_social_id)
+  if (porObraSocial) cuerpo.obra_social_id = Number(form.obra_social_id)
 
   return cuerpo
 }
@@ -90,13 +89,18 @@ export default function RegistrarPago({ cuota, onCancelar, onRegistrado, onDesac
     observaciones: '',
   })
   const [errores, setErrores] = useState({})
+  const [mediosPago, setMediosPago] = useState(null)
   const [obrasSociales, setObrasSociales] = useState([])
   const [guardando, setGuardando] = useState(false)
-  const porObraSocial = Number(form.medio_pago_id) === MEDIO_OBRA_SOCIAL
+  const medioElegido = mediosPago?.find((m) => String(m.id) === form.medio_pago_id)
+  const porObraSocial = medioElegido?.nombre === MEDIO_OBRA_SOCIAL
   const monto = centavos(Number(form.monto))
 
   useEffect(() => {
     let vivo = true
+    listarMediosPago()
+      .then((lista) => vivo && setMediosPago(lista))
+      .catch(() => vivo && setErrores((e) => ({ ...e, medio_pago_id: 'No se pudieron cargar los medios de pago' })))
     listarObrasSociales()
       .then((lista) => vivo && setObrasSociales(lista))
       .catch(() => vivo && setErrores((e) => ({ ...e, obra_social_id: 'No se pudieron cargar las obras sociales' })))
@@ -114,13 +118,13 @@ export default function RegistrarPago({ cuota, onCancelar, onRegistrado, onDesac
     e.preventDefault()
     if (guardando) return
 
-    const encontrados = validar(form, saldo)
+    const encontrados = validar(form, saldo, porObraSocial)
     setErrores(encontrados)
     if (Object.keys(encontrados).length) return
 
     setGuardando(true)
     try {
-      onRegistrado(await registrarPago(cuota.id, armarCuerpo(form)))
+      onRegistrado(await registrarPago(cuota.id, armarCuerpo(form, porObraSocial)))
     } catch (err) {
       if (CUOTA_DESACTUALIZADA.includes(err.codigo)) {
         onDesactualizada(err.message)
@@ -176,9 +180,10 @@ export default function RegistrarPago({ cuota, onCancelar, onRegistrado, onDesac
                 setErrores((er) => ({ ...er, obra_social_id: undefined }))
               }}
               aria-invalid={!!errores.medio_pago_id}
+              disabled={!mediosPago}
             >
-              <option value="">Elegir…</option>
-              {MEDIOS_PAGO.map((m) => (
+              <option value="">{mediosPago ? 'Elegir…' : 'Cargando…'}</option>
+              {(mediosPago ?? []).map((m) => (
                 <option key={m.id} value={m.id}>
                   {etiqueta(m.nombre)}
                 </option>

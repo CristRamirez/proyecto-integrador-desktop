@@ -1,8 +1,9 @@
 import { pedir } from './cliente'
 
-// El back todavía no expone el catálogo (no hay GET /medios-pago). Son los ids con
-// los que el seed carga la tabla medios_pago; cuando exista el endpoint se consulta.
-export const MEDIOS_PAGO = [
+// Los ids con los que el seed carga la tabla medios_pago. Solo se usan mientras el
+// back no tenga GET /medios-pago (responde RUTA_NO_ENCONTRADA); cuando lo publique,
+// manda su catálogo y esto se puede borrar.
+const MEDIOS_PAGO_DEL_SEED = [
   { id: 1, nombre: 'efectivo' },
   { id: 2, nombre: 'transferencia' },
   { id: 3, nombre: 'débito' },
@@ -10,7 +11,18 @@ export const MEDIOS_PAGO = [
   { id: 5, nombre: 'obra social' },
 ]
 
-export const MEDIO_OBRA_SOCIAL = 5
+// El back reconoce el pago de la obra social por el nombre del medio, no por el id.
+export const MEDIO_OBRA_SOCIAL = 'obra social'
+
+export async function listarMediosPago() {
+  try {
+    const { mediosPago } = await pedir('/medios-pago')
+    return mediosPago ?? []
+  } catch (err) {
+    if (err.codigo === 'RUTA_NO_ENCONTRADA') return MEDIOS_PAGO_DEL_SEED
+    throw err
+  }
+}
 
 export async function obtenerCuentaCorriente(idInterno) {
   const { interno, cuotas, total_adeudado } = await pedir(`/internos/${encodeURIComponent(idInterno)}/cuenta-corriente`)
