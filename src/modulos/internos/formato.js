@@ -45,9 +45,21 @@ export function periodo(valor) {
   return `${MESES[Number(mes) - 1] ?? mes} ${anio}`
 }
 
-export function periodoActual() {
-  const d = new Date()
+function aPeriodo(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+
+export function periodoActual() {
+  return aPeriodo(new Date())
+}
+
+// Del mes que viene hacia atrás un año: alcanza para cobrar atrasos y generar el
+// mes siguiente, y no hace falta pedirle al back la lista de períodos.
+export function periodosRecientes() {
+  const hoy = new Date()
+  const lista = []
+  for (let i = 1; i >= -11; i--) lista.push(aPeriodo(new Date(hoy.getFullYear(), hoy.getMonth() + i, 1)))
+  return lista
 }
 
 export function diasDesde(valor) {

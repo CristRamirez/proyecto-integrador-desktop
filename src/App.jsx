@@ -6,10 +6,12 @@ import { restaurarSesion, cerrarSesion } from './api/auth'
 import { onSesionVencida } from './api/cliente'
 import Internos from './modulos/internos/Internos'
 import Cobranzas from './modulos/cobranzas/Cobranzas'
+import Parametros from './modulos/parametros/Parametros'
 
 const PANTALLAS = {
   internos: Internos,
   cobranzas: Cobranzas,
+  parametros: Parametros,
 }
 
 function EnConstruccion() {

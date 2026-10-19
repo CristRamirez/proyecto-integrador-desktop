@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { listarCuotas } from '../../api/cobranzas'
 import { Aviso, Boton, Campo, claseInput } from '../../components/ui'
-import { fecha, moneda, monedaCorta, periodo } from '../internos/formato'
+import { fecha, moneda, monedaCorta, periodo, periodosRecientes } from '../internos/formato'
 import { estaVencida, tieneSaldo } from './cuota'
 import EstadoCuota from './EstadoCuota'
 
@@ -16,18 +16,6 @@ const ESTADOS = [
   ['pagada', 'Pagadas'],
   ['anulada', 'Anuladas'],
 ]
-
-// Del mes que viene hacia atrás un año: alcanza para cobrar atrasos y no hace
-// falta pedirle al back la lista de períodos.
-function periodosRecientes() {
-  const hoy = new Date()
-  const lista = []
-  for (let i = 1; i >= -11; i--) {
-    const d = new Date(hoy.getFullYear(), hoy.getMonth() + i, 1)
-    lista.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`)
-  }
-  return lista
-}
 
 function iniciales({ apellido, nombre }) {
   return `${apellido?.[0] ?? ''}${nombre?.[0] ?? ''}`.toUpperCase()
@@ -215,7 +203,8 @@ function FilaCuota({ cuota, onAbrir, onPagar }) {
   )
 }
 
-export default function CuotasDelPeriodo({ filtros, onFiltros, onAbrir, onPagar, onSinListado }) {
+// acciones va a la derecha del título; children, debajo (avisos y el panel de generar).
+export default function CuotasDelPeriodo({ filtros, onFiltros, onAbrir, onPagar, onSinListado, acciones, children }) {
   const { periodo: periodoElegido, estado, q, pagina } = filtros
   const [texto, setTexto] = useState(q)
   const [intento, setIntento] = useState(0)
@@ -255,10 +244,15 @@ export default function CuotasDelPeriodo({ filtros, onFiltros, onAbrir, onPagar,
 
   return (
     <div className="mx-auto max-w-6xl px-8 py-8">
-      <div>
-        <h1 className="font-serif text-[28px] font-semibold text-ink">Cobranzas</h1>
-        <p className="mt-1 text-[16px] text-ink-soft">Cuotas de {periodo(periodoElegido)}</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="font-serif text-[28px] font-semibold text-ink">Cobranzas</h1>
+          <p className="mt-1 text-[16px] text-ink-soft">Cuotas de {periodo(periodoElegido)}</p>
+        </div>
+        {acciones}
       </div>
+
+      {children}
 
       {datos?.resumen && (
         <div className={`mt-6 ${cargando ? 'opacity-60' : ''}`}>

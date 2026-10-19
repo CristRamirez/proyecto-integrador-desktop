@@ -40,6 +40,16 @@ export async function listarCuotas({ anio, mes, estado, q, pagina = 1, porPagina
   return { cuotas: cuotas ?? [], paginacion, resumen }
 }
 
+// Crea la cuota del período a cada interno activo que no la tenga, con los parámetros
+// vigentes. Se puede correr de nuevo: los que ya la tienen vuelven en omitidas.
+export async function generarCuotas({ anio, mes }) {
+  const { periodo, valor_cuota, fecha_vencimiento, internos_activos, creadas, omitidas } = await pedir(
+    '/cuotas/generar',
+    { method: 'POST', cuerpo: { anio, mes } }
+  )
+  return { periodo, valor_cuota, fecha_vencimiento, internos_activos, creadas, omitidas }
+}
+
 export async function registrarPago(idCuota, datos) {
   const { cuota, pagos } = await pedir(`/cuotas/${encodeURIComponent(idCuota)}/pagos`, { method: 'POST', cuerpo: datos })
   return { cuota, pagos: pagos ?? [] }
