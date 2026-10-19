@@ -1,7 +1,8 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { obtenerCuentaCorriente } from '../../api/cobranzas'
 import { Aviso, Boton, Dato, Marca, Seccion } from '../../components/ui'
 import { fecha, hoy, moneda, periodo } from '../internos/formato'
+import RegistrarPago from './RegistrarPago'
 
 function centavos(valor) {
   return Math.round(valor * 100) / 100
@@ -9,6 +10,11 @@ function centavos(valor) {
 
 function tieneSaldo(cuota) {
   return cuota.estado !== 'anulada' && cuota.saldo_pendiente > 0
+}
+
+// Misma regla que el back: las anuladas se listan pero no suman.
+function totalAdeudado(cuotas) {
+  return cuotas.filter((c) => c.estado !== 'anulada').reduce((total, c) => centavos(total + c.saldo_pendiente), 0)
 }
 
 function Pagos({ pagos }) {
@@ -29,7 +35,7 @@ function Pagos({ pagos }) {
           <tr key={p.id} className="border-b border-line last:border-b-0">
             <td className="py-2 pr-4">{fecha(p.fecha_pago)}</td>
             <td className="py-2 pr-4 capitalize">{p.medio_pago}</td>
-            <td className="py-2 pr-4 font-mono text-[14px] select-text">{p.numero_comprobante ?? '—'}</td>
+            <td className="py-2 pr-4 font-mono text-[14px] whitespace-nowrap select-text">{p.numero_comprobante ?? '—'}</td>
             <td className="py-2 pr-4">{p.observaciones ?? '—'}</td>
             <td className="py-2 pr-4 text-ink-soft">{p.registrado_por ?? '—'}</td>
             <td className="py-2 text-right font-mono">{moneda(p.monto)}</td>
@@ -45,6 +51,14 @@ export default function CuentaCorriente({ id, onVolver }) {
   const [error, setError] = useState(null)
   const [intento, setIntento] = useState(0)
   const [abiertas, setAbiertas] = useState(() => new Set())
+  const [pagando, setPagando] = useState(null)
+  const [aviso, setAviso] = useState(null)
+  const arriba = useRef(null)
+  const formulario = useRef(null)
+
+  useEffect(() => {
+    if (pagando) formulario.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [pagando])
 
   useEffect(() => {
     let vivo = true
@@ -63,6 +77,35 @@ export default function CuentaCorriente({ id, onVolver }) {
       else nuevas.add(idCuota)
       return nuevas
     })
+  }
+
+  function abrirPago(cuota) {
+    setAviso(null)
+    setPagando(cuota)
+  }
+
+  // El back devuelve la cuota ya recalculada y todos sus pagos: se reemplaza en la
+  // lista sin volver a pedir la cuenta corriente entera.
+  function pagoRegistrado({ cuota, pagos }) {
+    setDatos((d) => {
+      const cuotas = d.cuotas.map((c) => (c.id === cuota.id ? { ...cuota, pagos } : c))
+      return { ...d, cuotas, total_adeudado: totalAdeudado(cuotas) }
+    })
+    setAbiertas((s) => new Set(s).add(cuota.id))
+    setPagando(null)
+    setAviso(
+      cuota.saldo_pendiente > 0
+        ? `Pago registrado. La cuota de ${periodo(cuota.periodo)} queda con un saldo de ${moneda(cuota.saldo_pendiente)}.`
+        : `Pago registrado. La cuota de ${periodo(cuota.periodo)} quedó pagada.`
+    )
+    arriba.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  function cuotaDesactualizada(mensaje) {
+    setPagando(null)
+    setAviso(`${mensaje}. Se actualizó la cuenta corriente.`)
+    setIntento((n) => n + 1)
+    arriba.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
   if (error) {
@@ -101,7 +144,7 @@ export default function CuentaCorriente({ id, onVolver }) {
 
   return (
     <div className="mx-auto max-w-5xl px-8 py-8">
-      <div className="mb-6 flex items-start justify-between gap-4">
+      <div ref={arriba} className="mb-6 flex items-start justify-between gap-4">
         <div>
           <p className="font-mono text-[13px] tracking-[0.1em] text-ink-soft">
             Cuenta corriente · DNI <span className="select-text">{interno.dni}</span>
@@ -114,6 +157,12 @@ export default function CuentaCorriente({ id, onVolver }) {
           Volver a la ficha
         </Boton>
       </div>
+
+      {aviso && (
+        <div className="mb-6">
+          <Aviso>{aviso}</Aviso>
+        </div>
+      )}
 
       <div className="space-y-6">
         <dl className="grid grid-cols-3 gap-x-6 rounded-sm border border-line bg-surface px-7 py-6">
@@ -139,7 +188,7 @@ export default function CuentaCorriente({ id, onVolver }) {
                     <th className="py-3 pr-4 text-right font-normal">Saldo</th>
                     <th className="py-3 pr-4 font-normal">Estado</th>
                     <th className="py-3 font-normal">
-                      <span className="sr-only">Pagos</span>
+                      <span className="sr-only">Acciones</span>
                     </th>
                   </tr>
                 </thead>
@@ -152,8 +201,10 @@ export default function CuentaCorriente({ id, onVolver }) {
 
                     return (
                       <Fragment key={c.id}>
-                        <tr className={`border-b border-line ${anulada ? 'text-ink-soft' : ''}`}>
-                          <td className="py-3 pr-4 font-semibold capitalize">{periodo(c.periodo)}</td>
+                        <tr
+                          className={`border-b border-line ${anulada ? 'text-ink-soft' : ''} ${pagando?.id === c.id ? 'bg-accent-soft' : ''}`}
+                        >
+                          <td className="py-3 pr-4 font-semibold whitespace-nowrap capitalize">{periodo(c.periodo)}</td>
                           <td className="py-3 pr-4">
                             {fecha(c.fecha_vencimiento)}
                             {vencida && <span className="block text-[13px] font-semibold">Vencida</span>}
@@ -166,23 +217,35 @@ export default function CuentaCorriente({ id, onVolver }) {
                               </span>
                             )}
                           </td>
-                          <td className={importe}>{moneda(centavos(c.total - c.saldo_pendiente))}</td>
+                          <td className={importe}>
+                            {moneda(centavos(c.total - c.saldo_pendiente))}
+                            {c.pagos?.length > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => alternar(c.id)}
+                                aria-expanded={abierta}
+                                className="block w-full cursor-pointer text-right font-sans text-[13px] whitespace-nowrap text-ink-soft underline-offset-4 hover:text-ink hover:underline"
+                              >
+                                {abierta
+                                  ? 'Ocultar pagos'
+                                  : `Ver ${c.pagos.length} ${c.pagos.length === 1 ? 'pago' : 'pagos'}`}
+                              </button>
+                            )}
+                          </td>
                           <td className={`${importe} font-semibold`}>{moneda(c.saldo_pendiente)}</td>
                           <td className="py-3 pr-4">
                             <Marca>{c.estado}</Marca>
                           </td>
                           <td className="py-3 text-right">
-                            {c.pagos?.length > 0 ? (
-                              <button
-                                type="button"
-                                onClick={() => alternar(c.id)}
-                                aria-expanded={abierta}
-                                className="cursor-pointer text-[15px] whitespace-nowrap text-ink-soft underline-offset-4 hover:text-ink hover:underline"
+                            {tieneSaldo(c) && (
+                              <Boton
+                                variante="secundario"
+                                className="whitespace-nowrap"
+                                onClick={() => abrirPago(c)}
+                                disabled={pagando?.id === c.id}
                               >
-                                {abierta ? 'Ocultar' : 'Ver'} pagos ({c.pagos.length})
-                              </button>
-                            ) : (
-                              <span className="text-[15px] whitespace-nowrap text-ink-soft">Sin pagos</span>
+                                Registrar pago
+                              </Boton>
                             )}
                           </td>
                         </tr>
@@ -204,6 +267,18 @@ export default function CuentaCorriente({ id, onVolver }) {
             </>
           )}
         </Seccion>
+
+        {pagando && (
+          <div ref={formulario}>
+            <RegistrarPago
+              key={pagando.id}
+              cuota={pagando}
+              onCancelar={() => setPagando(null)}
+              onRegistrado={pagoRegistrado}
+              onDesactualizada={cuotaDesactualizada}
+            />
+          </div>
+        )}
       </div>
     </div>
   )
