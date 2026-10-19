@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
+import CuentaCorriente from '../cobranzas/CuentaCorriente'
 import FichaInterno from './FichaInterno'
 import FormularioInterno from './FormularioInterno'
 import InternoCreado from './InternoCreado'
 import Padron from './Padron'
 
-function Vista({ vista, setVista }) {
+function Vista({ vista, setVista, conCobranzas }) {
   if (vista.tipo === 'alta') {
     return (
       <FormularioInterno
@@ -43,16 +44,24 @@ function Vista({ vista, setVista }) {
         guardado={vista.guardado}
         onVolver={() => setVista({ tipo: 'padron' })}
         onEditar={(interno) => setVista({ tipo: 'editar', interno })}
+        onCuentaCorriente={conCobranzas ? () => setVista({ tipo: 'cuenta', id: vista.id }) : undefined}
       />
     )
+  }
+
+  if (vista.tipo === 'cuenta') {
+    return <CuentaCorriente id={vista.id} onVolver={() => setVista({ tipo: 'ficha', id: vista.id })} />
   }
 
   return <Padron onNuevo={() => setVista({ tipo: 'alta' })} onAbrir={(id) => setVista({ tipo: 'ficha', id })} />
 }
 
-export default function Internos() {
+// La cuenta corriente cuelga de la ficha pero es de Cobranzas: el back pide los
+// dos módulos, así que sin cobranzas el botón queda deshabilitado.
+export default function Internos({ modulos = [] }) {
   const [vista, setVista] = useState({ tipo: 'padron' })
   const raiz = useRef(null)
+  const conCobranzas = modulos.includes('cobranzas')
 
   useEffect(() => {
     raiz.current?.scrollIntoView()
@@ -60,7 +69,7 @@ export default function Internos() {
 
   return (
     <div ref={raiz}>
-      <Vista vista={vista} setVista={setVista} />
+      <Vista vista={vista} setVista={setVista} conCobranzas={conCobranzas} />
     </div>
   )
 }

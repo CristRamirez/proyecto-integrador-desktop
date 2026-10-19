@@ -17,6 +17,24 @@ export function fechaHora(valor) {
   return hora ? `${fecha(valor)} ${hora}` : fecha(valor)
 }
 
+const PESOS = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' })
+
+export function moneda(valor) {
+  return PESOS.format(valor ?? 0)
+}
+
+const MESES = [
+  'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+  'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+]
+
+// "2026-10" → "octubre 2026"
+export function periodo(valor) {
+  if (!valor) return '—'
+  const [anio, mes] = valor.split('-')
+  return `${MESES[Number(mes) - 1] ?? mes} ${anio}`
+}
+
 export function edad(nacimiento) {
   if (!nacimiento) return null
   const [anio, mes, dia] = nacimiento.slice(0, 10).split('-').map(Number)

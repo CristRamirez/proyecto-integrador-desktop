@@ -50,7 +50,7 @@ function Historial({ historial }) {
   )
 }
 
-export default function FichaInterno({ id, inicial, guardado, onVolver, onEditar }) {
+export default function FichaInterno({ id, inicial, guardado, onVolver, onEditar, onCuentaCorriente }) {
   const [interno, setInterno] = useState(inicial ?? null)
   const [error, setError] = useState(null)
   const [intento, setIntento] = useState(0)
@@ -131,7 +131,12 @@ export default function FichaInterno({ id, inicial, guardado, onVolver, onEditar
           <Boton variante="secundario" onClick={() => onEditar(interno)}>
             Modificar datos
           </Boton>
-          <Boton variante="secundario" disabled title="Disponible cuando esté el módulo de Cobranzas">
+          <Boton
+            variante="secundario"
+            onClick={onCuentaCorriente}
+            disabled={!onCuentaCorriente}
+            title={onCuentaCorriente ? undefined : 'Tu rol no tiene acceso a Cobranzas'}
+          >
             Cuenta corriente
           </Boton>
         </div>

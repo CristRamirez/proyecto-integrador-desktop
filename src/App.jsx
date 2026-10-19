@@ -70,7 +70,7 @@ export default function App() {
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar seccion={activo ?? '—'} usuario={sesion.usuario} onLogout={salir} />
         <main className="min-h-0 flex-1 overflow-y-auto">
-          <Pantalla key={activo} />
+          <Pantalla key={activo} modulos={modulos} />
         </main>
       </div>
     </div>
