@@ -1,8 +1,4 @@
-// El back manda los módulos como nombres sueltos ("internos", "cobranzas").
-// El nombre es el identificador; acá solo se lo acomoda para mostrarlo.
-function etiqueta(nombre) {
-  return nombre.charAt(0).toUpperCase() + nombre.slice(1)
-}
+import { etiqueta } from '../modulos/menu'
 
 export default function Sidebar({ modulos = [], activo, onSelect }) {
   return (
@@ -48,7 +44,7 @@ export default function Sidebar({ modulos = [], activo, onSelect }) {
       </nav>
 
       <div className="border-t border-rail-line px-4 py-3 font-mono text-[11px] text-rail-soft/60">
-        v0.1
+        v1.0
       </div>
     </aside>
   )

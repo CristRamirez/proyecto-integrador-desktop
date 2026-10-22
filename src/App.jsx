@@ -6,12 +6,13 @@ import { restaurarSesion, cerrarSesion } from './api/auth'
 import { onSesionVencida } from './api/cliente'
 import Internos from './modulos/internos/Internos'
 import Cobranzas from './modulos/cobranzas/Cobranzas'
-import Parametros from './modulos/parametros/Parametros'
+import Configuracion from './modulos/configuracion/Configuracion'
+import { armarMenu, etiqueta } from './modulos/menu'
 
 const PANTALLAS = {
   internos: Internos,
   cobranzas: Cobranzas,
-  parametros: Parametros,
+  configuracion: Configuracion,
 }
 
 function EnConstruccion() {
@@ -65,14 +66,15 @@ export default function App() {
   if (!sesion) return <Login onLogin={setSesion} />
 
   const modulos = sesion.usuario.modulos ?? []
-  const activo = modulos.includes(modulo) ? modulo : (modulos[0] ?? null)
+  const menu = armarMenu(modulos)
+  const activo = menu.includes(modulo) ? modulo : (menu[0] ?? null)
   const Pantalla = PANTALLAS[activo] ?? EnConstruccion
 
   return (
     <div className="flex h-full">
-      <Sidebar modulos={modulos} activo={activo} onSelect={setModulo} />
+      <Sidebar modulos={menu} activo={activo} onSelect={setModulo} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar seccion={activo ?? '—'} usuario={sesion.usuario} onLogout={salir} />
+        <Topbar seccion={activo ? etiqueta(activo) : '—'} usuario={sesion.usuario} onLogout={salir} />
         <main className="min-h-0 flex-1 overflow-y-auto">
           <Pantalla key={activo} modulos={modulos} />
         </main>
