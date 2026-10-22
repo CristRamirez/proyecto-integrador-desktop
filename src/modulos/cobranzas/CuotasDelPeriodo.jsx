@@ -61,7 +61,7 @@ function Indicador({ etiqueta, valor, detalle, tono = 'neutro', progreso }) {
   )
 }
 
-function Indicadores({ resumen, periodoElegido }) {
+export function Indicadores({ resumen, periodoElegido }) {
   const mes = periodo(periodoElegido).split(' ')[0]
   const cobradoSobreTotal = resumen.facturado > 0 ? Math.round((resumen.cobrado / resumen.facturado) * 100) : 0
 

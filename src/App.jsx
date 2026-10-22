@@ -4,12 +4,14 @@ import Topbar from './components/Topbar'
 import Login from './components/Login'
 import { restaurarSesion, cerrarSesion } from './api/auth'
 import { onSesionVencida } from './api/cliente'
+import Inicio from './modulos/inicio/Inicio'
 import Internos from './modulos/internos/Internos'
 import Cobranzas from './modulos/cobranzas/Cobranzas'
 import Configuracion from './modulos/configuracion/Configuracion'
 import { armarMenu, etiqueta } from './modulos/menu'
 
 const PANTALLAS = {
+  inicio: Inicio,
   internos: Internos,
   cobranzas: Cobranzas,
   configuracion: Configuracion,
@@ -26,6 +28,7 @@ function EnConstruccion() {
 export default function App() {
   const [sesion, setSesion] = useState(null)
   const [modulo, setModulo] = useState(null)
+  const [accion, setAccion] = useState(null)
   const [cargando, setCargando] = useState(true)
 
   useEffect(() => {
@@ -47,9 +50,14 @@ export default function App() {
 
   useEffect(() => onSesionVencida(salir), [])
 
+  function ir(destino, nuevaAccion = null) {
+    setModulo(destino)
+    setAccion(nuevaAccion)
+  }
+
   function salir() {
     cerrarSesion()
-    setModulo(null)
+    ir(null)
     setSesion(null)
   }
 
@@ -72,11 +80,11 @@ export default function App() {
 
   return (
     <div className="flex h-full">
-      <Sidebar modulos={menu} activo={activo} onSelect={setModulo} />
+      <Sidebar modulos={menu} activo={activo} onSelect={ir} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar seccion={activo ? etiqueta(activo) : '—'} usuario={sesion.usuario} onLogout={salir} />
         <main className="min-h-0 flex-1 overflow-y-auto">
-          <Pantalla key={activo} modulos={modulos} />
+          <Pantalla key={activo} modulos={modulos} usuario={sesion.usuario} accion={accion} onIr={ir} />
         </main>
       </div>
     </div>

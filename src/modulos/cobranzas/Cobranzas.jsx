@@ -23,9 +23,14 @@ function resultadoDeGenerar({ periodo: { anio, mes }, valor_cuota, fecha_vencimi
 // tuviera ese endpoint se entra buscando al interno en el padrón, que usa GET /internos
 // y por eso pide también el módulo internos. Los filtros viven acá para que no se
 // pierdan al ir y volver de la cuenta corriente.
-export default function Cobranzas() {
-  const [vista, setVista] = useState({ tipo: 'lista' })
-  const [filtros, setFiltros] = useState(() => ({ periodo: periodoActual(), estado: '', q: '', pagina: 1 }))
+export default function Cobranzas({ accion }) {
+  const [vista, setVista] = useState(accion?.tipo === 'cuenta' ? accion : { tipo: 'lista' })
+  const [filtros, setFiltros] = useState(() => ({
+    periodo: periodoActual(),
+    estado: accion?.tipo === 'vencidas' ? 'vencida' : '',
+    q: '',
+    pagina: 1,
+  }))
   const [sinListado, setSinListado] = useState(false)
   const [generando, setGenerando] = useState(false)
   const [aviso, setAviso] = useState(null)
