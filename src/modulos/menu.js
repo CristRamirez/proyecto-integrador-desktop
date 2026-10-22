@@ -1,6 +1,6 @@
 const ORDEN = ['internos', 'cobranzas']
 
-const DE_CONFIGURACION = ['parametros', 'auditoria', 'configuracion']
+const DE_CONFIGURACION = ['parametros', 'usuarios', 'auditoria', 'configuracion']
 
 const NOMBRES = {
   configuracion: 'Configuración',

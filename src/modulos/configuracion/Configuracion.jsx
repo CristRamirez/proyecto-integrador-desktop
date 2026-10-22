@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import Parametros from '../parametros/Parametros'
 import Auditoria from './Auditoria'
+import Usuarios from './Usuarios'
 
 const PESTANAS = [
   { id: 'parametros', titulo: 'Parámetros', Pantalla: Parametros },
+  { id: 'usuarios', titulo: 'Usuarios', Pantalla: Usuarios },
   { id: 'auditoria', titulo: 'Auditoría', Pantalla: Auditoria },
 ]
 
