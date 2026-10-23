@@ -21,9 +21,11 @@ export async function obtenerInterno(id) {
   return interno
 }
 
+// `activo`: el interno activo con ese DNI, que no se puede repetir. `egresado`: la
+// persona ya estuvo internada; no se da de alta otra vez, se reingresa desde su ficha.
 export async function verificarDni(dni) {
-  const { duplicado, interno } = await pedir(`/internos/verificar-dni/${encodeURIComponent(dni)}`)
-  return duplicado ? interno : null
+  const { duplicado, interno, egresado } = await pedir(`/internos/verificar-dni/${encodeURIComponent(dni)}`)
+  return { activo: duplicado ? interno : null, egresado: egresado ?? null }
 }
 
 export async function altaInterno(datos) {
@@ -33,6 +35,12 @@ export async function altaInterno(datos) {
 
 export async function bajaInterno(id, datos) {
   const { interno } = await pedir(`/internos/${encodeURIComponent(id)}/baja`, { method: 'POST', cuerpo: datos })
+  return interno
+}
+
+// Vuelve a activo y le abre un legajo nuevo; los anteriores quedan en la ficha.
+export async function reingresarInterno(id, datos) {
+  const { interno } = await pedir(`/internos/${encodeURIComponent(id)}/reingreso`, { method: 'POST', cuerpo: datos })
   return interno
 }
 

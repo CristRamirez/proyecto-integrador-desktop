@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { obtenerInterno } from '../../api/internos'
 import { Aviso, Boton, Dato, Marca, Seccion } from '../../components/ui'
 import BajaInterno from './BajaInterno'
-import { edad, fecha, fechaHora } from './formato'
+import ReingresoInterno from './ReingresoInterno'
+import { edad, fecha, fechaHora, legajoActual } from './formato'
 
 function Contactos({ contactos }) {
   if (!contactos?.length) return <p className="text-[16px] text-ink-soft">No tiene contactos cargados.</p>
@@ -24,6 +25,35 @@ function Contactos({ contactos }) {
             <td className="py-3 pr-5">{c.parentesco ?? '—'}</td>
             <td className="py-3 pr-5 font-mono select-text">{c.telefono ?? '—'}</td>
             <td className="py-3 select-text">{c.email ?? '—'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
+}
+
+// Un legajo por estadía, del más nuevo al más viejo. El abierto es el actual.
+function Legajos({ legajos }) {
+  const ordenado = [...(legajos ?? [])].reverse()
+  if (!ordenado.length) return <p className="text-[16px] text-ink-soft">No tiene legajos.</p>
+
+  return (
+    <table className="w-full text-left text-[16px] text-ink">
+      <thead>
+        <tr className="border-b border-line font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">
+          <th className="py-3 pr-5 font-normal">Legajo</th>
+          <th className="py-3 pr-5 font-normal">Ingreso</th>
+          <th className="py-3 pr-5 font-normal">Egreso</th>
+          <th className="py-3 font-normal">Motivo del egreso</th>
+        </tr>
+      </thead>
+      <tbody>
+        {ordenado.map((l) => (
+          <tr key={l.id} className="border-b border-line last:border-b-0">
+            <td className="py-3 pr-5 font-mono font-semibold select-text">{l.numero}</td>
+            <td className="py-3 pr-5">{fecha(l.fecha_ingreso ?? l.fecha_apertura)}</td>
+            <td className="py-3 pr-5">{l.fecha_egreso ? fecha(l.fecha_egreso) : <Marca>Actual</Marca>}</td>
+            <td className="py-3">{l.motivo_egreso ?? '—'}</td>
           </tr>
         ))}
       </tbody>
@@ -56,12 +86,22 @@ export default function FichaInterno({ id, inicial, guardado, onVolver, onEditar
   const [intento, setIntento] = useState(0)
   const [aviso, setAviso] = useState(guardado ? 'Los cambios se guardaron correctamente.' : null)
   const [dandoDeBaja, setDandoDeBaja] = useState(false)
+  const [reingresando, setReingresando] = useState(false)
   const arriba = useRef(null)
 
   function registrarBaja(actualizado) {
     setInterno(actualizado)
     setDandoDeBaja(false)
     setAviso('El interno quedó dado de baja.')
+    arriba.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  function registrarReingreso(actualizado) {
+    setInterno(actualizado)
+    setReingresando(false)
+    setAviso(
+      `El interno volvió a ingresar con el legajo ${legajoActual(actualizado)?.numero}. Revisá los contactos y los datos de salud por si cambiaron.`,
+    )
     arriba.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
@@ -104,7 +144,7 @@ export default function FichaInterno({ id, inicial, guardado, onVolver, onEditar
     )
   }
 
-  const legajo = interno.legajos?.[0]
+  const legajo = legajoActual(interno)
   const años = edad(interno.fecha_nacimiento)
 
   return (
@@ -157,7 +197,9 @@ export default function FichaInterno({ id, inicial, guardado, onVolver, onEditar
             <Dato etiqueta="Fecha de nacimiento">
               {interno.fecha_nacimiento && `${fecha(interno.fecha_nacimiento)}${años !== null ? ` (${años} años)` : ''}`}
             </Dato>
-            <Dato etiqueta="Fecha de ingreso">{fecha(interno.fecha_ingreso)}</Dato>
+            <Dato etiqueta={interno.legajos?.length > 1 ? 'Ingreso actual' : 'Fecha de ingreso'}>
+              {fecha(interno.fecha_ingreso)}
+            </Dato>
           </dl>
         </Seccion>
 
@@ -175,9 +217,36 @@ export default function FichaInterno({ id, inicial, guardado, onVolver, onEditar
           <Contactos contactos={interno.contactos} />
         </Seccion>
 
+        <Seccion titulo="Legajos">
+          <Legajos legajos={interno.legajos} />
+        </Seccion>
+
         <Seccion titulo="Historial de estados">
           <Historial historial={interno.historial} />
         </Seccion>
+
+        {interno.estado === 'egresado' &&
+          (reingresando ? (
+            <ReingresoInterno
+              interno={interno}
+              conCobranzas={!!onCuentaCorriente}
+              onCancelar={() => setReingresando(false)}
+              onReingreso={registrarReingreso}
+            />
+          ) : (
+            <div className="flex justify-end">
+              <Boton
+                variante="secundario"
+                icono="mas"
+                onClick={() => {
+                  setAviso(null)
+                  setReingresando(true)
+                }}
+              >
+                Registrar reingreso
+              </Boton>
+            </div>
+          ))}
 
         {interno.estado !== 'egresado' &&
           (dandoDeBaja ? (

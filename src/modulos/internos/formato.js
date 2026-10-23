@@ -1,3 +1,8 @@
+// El back manda los legajos del más viejo al más nuevo: el último es la estadía actual.
+export function legajoActual(interno) {
+  return interno.legajos?.at(-1)
+}
+
 export function hoy() {
   const d = new Date()
   const mes = String(d.getMonth() + 1).padStart(2, '0')

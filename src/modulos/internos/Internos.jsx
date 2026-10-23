@@ -11,6 +11,7 @@ function Vista({ vista, setVista, conCobranzas }) {
       <FormularioInterno
         onCancelar={() => setVista({ tipo: 'padron' })}
         onGuardado={(interno) => setVista({ tipo: 'creado', interno })}
+        onAbrirFicha={(id) => setVista({ tipo: 'ficha', id })}
       />
     )
   }

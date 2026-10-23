@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { altaInterno, listarObrasSociales, modificarInterno, verificarDni } from '../../api/internos'
 import { Aviso, Boton, Campo, Etiqueta, Seccion, claseInput } from '../../components/ui'
-import { hoy } from './formato'
+import { fecha, hoy, legajoActual } from './formato'
 
 const MINIMO_CONTACTOS = 2
 
@@ -41,6 +41,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const DNI = /^\d{7,8}$/
 
 const mensajeDuplicado = (interno) => `Ya hay un interno activo con este DNI: ${interno.apellido}, ${interno.nombre}`
+const MENSAJE_EGRESADO = 'Esta persona ya estuvo internada: se reingresa desde su ficha'
 
 function validar(f) {
   const errores = {}
@@ -102,6 +103,7 @@ function errorDelBack(err) {
   switch (err.codigo) {
     case 'DNI_INVALIDO':
     case 'DNI_DUPLICADO':
+    case 'DNI_EGRESADO':
       return { dni: err.message }
     case 'CONTACTOS_INSUFICIENTES':
     case 'CONTACTO_INVALIDO':
@@ -115,7 +117,7 @@ function errorDelBack(err) {
   }
 }
 
-export default function FormularioInterno({ interno, onCancelar, onGuardado }) {
+export default function FormularioInterno({ interno, onCancelar, onGuardado, onAbrirFicha }) {
   const editando = !!interno
   const [form, setForm] = useState(() => (editando ? formularioDesde(interno) : formularioVacio()))
   const [original] = useState(() => (editando ? armarCuerpo(formularioDesde(interno)) : null))
@@ -123,6 +125,7 @@ export default function FormularioInterno({ interno, onCancelar, onGuardado }) {
   const [obrasSociales, setObrasSociales] = useState([])
   const [guardando, setGuardando] = useState(false)
   const [duplicado, setDuplicado] = useState(null)
+  const [egresado, setEgresado] = useState(null)
   const arriba = useRef(null)
   const dniConsultado = useRef('')
 
@@ -146,17 +149,21 @@ export default function FormularioInterno({ interno, onCancelar, onGuardado }) {
     if (valor !== dniConsultado.current) {
       dniConsultado.current = ''
       setDuplicado(null)
+      setEgresado(null)
     }
   }
 
+  // Al modificar no se avisa del egresado: el alta es la que no puede repetir personas.
   async function consultarDni() {
     const dni = form.dni.trim()
     if (!DNI.test(dni) || dni === dniConsultado.current || dni === original?.dni) return
     dniConsultado.current = dni
     try {
-      const otro = await verificarDni(dni)
-      const esOtro = otro && otro.id !== interno?.id
-      if (dniConsultado.current === dni) setDuplicado(esOtro ? { dni, interno: otro } : null)
+      const { activo, egresado: anterior } = await verificarDni(dni)
+      const esOtro = activo && activo.id !== interno?.id
+      if (dniConsultado.current !== dni) return
+      setDuplicado(esOtro ? { dni, interno: activo } : null)
+      setEgresado(!editando && anterior ? { dni, interno: anterior } : null)
     } catch {
       if (dniConsultado.current === dni) dniConsultado.current = ''
     }
@@ -190,6 +197,7 @@ export default function FormularioInterno({ interno, onCancelar, onGuardado }) {
 
     const encontrados = validar(form)
     if (!encontrados.dni && duplicado?.dni === form.dni.trim()) encontrados.dni = mensajeDuplicado(duplicado.interno)
+    if (!encontrados.dni && egresado?.dni === form.dni.trim()) encontrados.dni = MENSAJE_EGRESADO
     setErrores(encontrados)
     if (Object.keys(encontrados).length) {
       arriba.current?.scrollIntoView({ behavior: 'smooth' })
@@ -258,7 +266,11 @@ export default function FormularioInterno({ interno, onCancelar, onGuardado }) {
                 aria-invalid={!!errores.nombre}
               />
             </Campo>
-            <Campo etiqueta="DNI" obligatorio error={errores.dni ?? (duplicado && mensajeDuplicado(duplicado.interno))}>
+            <Campo
+              etiqueta="DNI"
+              obligatorio
+              error={errores.dni ?? (duplicado ? mensajeDuplicado(duplicado.interno) : egresado && MENSAJE_EGRESADO)}
+            >
               <input
                 className={claseInput}
                 value={form.dni}
@@ -266,7 +278,7 @@ export default function FormularioInterno({ interno, onCancelar, onGuardado }) {
                 onBlur={consultarDni}
                 inputMode="numeric"
                 placeholder="Sin puntos"
-                aria-invalid={!!errores.dni || !!duplicado}
+                aria-invalid={!!errores.dni || !!duplicado || !!egresado}
               />
             </Campo>
             <Campo etiqueta="Fecha de nacimiento" error={errores.fecha_nacimiento}>
@@ -297,11 +309,34 @@ export default function FormularioInterno({ interno, onCancelar, onGuardado }) {
             </Campo>
             {editando && (
               <Campo etiqueta="Legajo">
-                <input className={`${claseInput} font-mono`} value={interno.legajos?.[0]?.numero ?? 'Sin legajo'} disabled />
+                <input className={`${claseInput} font-mono`} value={legajoActual(interno)?.numero ?? 'Sin legajo'} disabled />
                 <p className="mt-1.5 text-[14px] text-ink-soft">No se puede modificar.</p>
               </Campo>
             )}
           </div>
+
+          {egresado && (
+            <div className="mt-5 flex items-center justify-between gap-4 border-l-4 border-ink bg-accent-soft px-4 py-3">
+              <p className="text-[16px] text-ink">
+                <span className="font-semibold">
+                  {egresado.interno.apellido}, {egresado.interno.nombre}
+                </span>{' '}
+                egresó{egresado.interno.fecha_egreso && ` el ${fecha(egresado.interno.fecha_egreso)}`}
+                {egresado.interno.legajo && ` (legajo ${egresado.interno.legajo})`}. Para que vuelva, registrá el
+                reingreso desde su ficha: conserva sus legajos y su cuenta corriente.
+              </p>
+              {onAbrirFicha && (
+                <Boton
+                  variante="secundario"
+                  icono="persona"
+                  className="shrink-0"
+                  onClick={() => onAbrirFicha(egresado.interno.id)}
+                >
+                  Ir a su ficha
+                </Boton>
+              )}
+            </div>
+          )}
         </Seccion>
 
         <Seccion titulo="Salud y cobertura">
