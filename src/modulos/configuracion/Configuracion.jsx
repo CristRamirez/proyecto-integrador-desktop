@@ -9,16 +9,34 @@ const PESTANAS = [
   { id: 'auditoria', titulo: 'Auditoría', Pantalla: Auditoria },
 ]
 
-export default function Configuracion() {
-  const [actual, setActual] = useState(PESTANAS[0].id)
-  const { Pantalla } = PESTANAS.find((p) => p.id === actual)
+// Cada pestaña es un módulo del rol: se muestran solo las que tiene, así nadie
+// entra a una que el back le va a rechazar. Un módulo "configuracion" las abre todas.
+function pestanasDelRol(modulos) {
+  if (modulos.includes('configuracion')) return PESTANAS
+  return PESTANAS.filter((p) => modulos.includes(p.id))
+}
+
+export default function Configuracion({ modulos = [], usuario }) {
+  const visibles = pestanasDelRol(modulos)
+  const [actual, setActual] = useState(visibles[0]?.id)
+  const pestana = visibles.find((p) => p.id === actual) ?? visibles[0]
+
+  if (!pestana) {
+    return (
+      <p className="py-16 text-center font-mono text-[13px] tracking-[0.18em] text-ink-soft uppercase">
+        Tu rol no tiene opciones de configuración
+      </p>
+    )
+  }
+
+  const { Pantalla } = pestana
 
   return (
     <>
       <div className="mx-auto max-w-5xl px-8 pt-6">
         <nav className="flex gap-2 border-b border-line">
-          {PESTANAS.map((p) => {
-            const activa = p.id === actual
+          {visibles.map((p) => {
+            const activa = p.id === pestana.id
             return (
               <button
                 key={p.id}
@@ -35,7 +53,7 @@ export default function Configuracion() {
           })}
         </nav>
       </div>
-      <Pantalla />
+      <Pantalla key={pestana.id} usuario={usuario} />
     </>
   )
 }
