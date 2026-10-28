@@ -16,6 +16,22 @@ export function fecha(valor) {
   return `${dia}/${mes}/${anio}`
 }
 
+const FECHA_HORA_LOCAL = new Intl.DateTimeFormat('es-AR', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+})
+
+// Para las fechas que pone la base ("AAAA-MM-DD HH:MM:SS" en UTC): las pasa a la hora local.
+export function fechaHoraDesdeUtc(valor) {
+  if (!valor) return '—'
+  const d = new Date(`${valor.replace(' ', 'T')}Z`)
+  return Number.isNaN(d.getTime()) ? fechaHora(valor) : FECHA_HORA_LOCAL.format(d).replace(',', '')
+}
+
 export function fechaHora(valor) {
   if (!valor) return '—'
   const hora = valor.slice(11, 16)
