@@ -16,3 +16,13 @@ export async function registrarEgreso(datos) {
   const { egreso } = await pedir('/egresos', { method: 'POST', cuerpo: datos })
   return egreso
 }
+
+export async function modificarEgreso(id, datos) {
+  const { egreso } = await pedir(`/egresos/${encodeURIComponent(id)}`, { method: 'PUT', cuerpo: datos })
+  return egreso
+}
+
+export async function anularEgreso(id, motivo) {
+  const { egreso } = await pedir(`/egresos/${encodeURIComponent(id)}/anular`, { method: 'POST', cuerpo: { motivo } })
+  return egreso
+}

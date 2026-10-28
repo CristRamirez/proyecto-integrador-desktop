@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { MEDIO_OBRA_SOCIAL, listarMediosPago } from '../../api/cobranzas'
-import { listarCategoriasEgreso, registrarEgreso } from '../../api/egresos'
+import { listarCategoriasEgreso, modificarEgreso, registrarEgreso } from '../../api/egresos'
 import { Aviso, Boton, Campo, Seccion, claseInput } from '../../components/ui'
 import { hoy } from '../internos/formato'
-import { CATEGORIAS_SUGERIDAS, capitalizar } from './egreso'
+import { CATEGORIAS_SUGERIDAS, EGRESO_DESACTUALIZADO, capitalizar } from './egreso'
 
 const MAXIMO_CONCEPTO = 200
 const MAXIMO_CATEGORIA = 60
@@ -12,6 +12,21 @@ const MAXIMO_OBSERVACIONES = 500
 
 function centavos(valor) {
   return Math.round(valor * 100) / 100
+}
+
+function formularioDe(egreso) {
+  if (!egreso) {
+    return { concepto: '', categoria: '', monto: '', medio_pago_id: '', fecha: hoy(), comprobante: '', observaciones: '' }
+  }
+  return {
+    concepto: egreso.concepto ?? '',
+    categoria: egreso.categoria ? capitalizar(egreso.categoria) : '',
+    monto: String(egreso.monto),
+    medio_pago_id: String(egreso.medio_pago_id ?? ''),
+    fecha: String(egreso.fecha).slice(0, 10),
+    comprobante: egreso.comprobante ?? '',
+    observaciones: egreso.observaciones ?? '',
+  }
 }
 
 function validar(form) {
@@ -79,16 +94,9 @@ function errorDelBack(err) {
   }
 }
 
-export default function RegistrarEgreso({ onCancelar, onRegistrado }) {
-  const [form, setForm] = useState({
-    concepto: '',
-    categoria: '',
-    monto: '',
-    medio_pago_id: '',
-    fecha: hoy(),
-    comprobante: '',
-    observaciones: '',
-  })
+export default function FormularioEgreso({ egreso, onCancelar, onGuardado, onDesactualizado }) {
+  const [inicial] = useState(() => formularioDe(egreso))
+  const [form, setForm] = useState(inicial)
   const [errores, setErrores] = useState({})
   const [mediosPago, setMediosPago] = useState(null)
   const [categorias, setCategorias] = useState(CATEGORIAS_SUGERIDAS)
@@ -122,18 +130,29 @@ export default function RegistrarEgreso({ onCancelar, onRegistrado }) {
 
     setGuardando(true)
     try {
-      onRegistrado(await registrarEgreso(armarCuerpo(form)))
+      const cuerpo = armarCuerpo(form)
+      onGuardado(egreso ? await modificarEgreso(egreso.id, cuerpo) : await registrarEgreso(cuerpo))
     } catch (err) {
+      if (egreso && EGRESO_DESACTUALIZADO.includes(err.codigo)) {
+        onDesactualizado(err.message)
+        return
+      }
       setErrores(errorDelBack(err))
       setGuardando(false)
     }
   }
 
+  const sinCambios = !!egreso && JSON.stringify(armarCuerpo(form)) === JSON.stringify(armarCuerpo(inicial))
+  let textoBoton = guardando ? 'Registrando…' : 'Registrar egreso'
+  if (egreso) textoBoton = guardando ? 'Guardando…' : 'Guardar cambios'
+
   return (
     <form onSubmit={confirmar} noValidate>
-      <Seccion titulo="Registrar egreso">
+      <Seccion titulo={egreso ? 'Editar egreso' : 'Registrar egreso'}>
         <p className="-mt-3 mb-5 text-[15px] text-ink-soft">
-          Gasto de la institución, no atado a ningún interno. Se suma a los egresos del mes de la fecha que elijas.
+          {egreso
+            ? `Cargado por ${egreso.registrado_por ?? 'otro usuario'}. Los cambios quedan registrados en la auditoría.`
+            : 'Gasto de la institución, no atado a ningún interno. Se suma a los egresos del mes de la fecha que elijas.'}
         </p>
 
         {errores.general && (
@@ -247,8 +266,8 @@ export default function RegistrarEgreso({ onCancelar, onRegistrado }) {
           <Boton variante="secundario" onClick={onCancelar} disabled={guardando}>
             Cancelar
           </Boton>
-          <Boton type="submit" icono="check" disabled={guardando}>
-            {guardando ? 'Registrando…' : 'Registrar egreso'}
+          <Boton type="submit" icono="check" disabled={guardando || sinCambios}>
+            {textoBoton}
           </Boton>
         </div>
       </Seccion>
