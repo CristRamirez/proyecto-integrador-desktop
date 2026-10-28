@@ -1,4 +1,4 @@
-const ORDEN = ['internos', 'cobranzas']
+const ORDEN = ['internos', 'cobranzas', 'egresos']
 
 const DE_CONFIGURACION = ['parametros', 'usuarios', 'auditoria', 'configuracion']
 
@@ -12,7 +12,8 @@ function posicion(modulo) {
 }
 
 export function armarMenu(modulos) {
-  const propios = modulos
+  const conEgresos = modulos.includes('cobranzas') ? [...new Set([...modulos, 'egresos'])] : modulos
+  const propios = conEgresos
     .filter((m) => m !== 'inicio' && !DE_CONFIGURACION.includes(m))
     .sort((a, b) => posicion(a) - posicion(b))
   const conConfiguracion = modulos.some((m) => DE_CONFIGURACION.includes(m))

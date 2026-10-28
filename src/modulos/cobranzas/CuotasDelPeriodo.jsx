@@ -36,7 +36,7 @@ function paginasVisibles(actual, total) {
 
 const PUNTOS = { neutro: 'bg-accent', ok: 'bg-ok', aviso: 'bg-warn', peligro: 'bg-danger' }
 
-function Indicador({ etiqueta, valor, detalle, tono = 'neutro', progreso }) {
+export function Indicador({ etiqueta, valor, detalle, tono = 'neutro', progreso }) {
   return (
     <div className="rounded-sm border border-line bg-surface px-5 py-4">
       <p className="flex items-center gap-2 font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">
@@ -95,7 +95,7 @@ export function Indicadores({ resumen, periodoElegido }) {
   )
 }
 
-function Paginado({ paginacion, cantidad, cargando, onPagina }) {
+export function Paginado({ paginacion, cantidad, cargando, onPagina, unidad = ['cuota', 'cuotas'] }) {
   const { pagina, por_pagina, total, total_paginas } = paginacion
   const desde = (pagina - 1) * por_pagina + 1
   const clasePagina =
@@ -108,7 +108,7 @@ function Paginado({ paginacion, cantidad, cargando, onPagina }) {
         <span className="font-semibold text-ink">
           {desde}–{desde + cantidad - 1}
         </span>{' '}
-        de <span className="font-semibold text-ink">{total}</span> {total === 1 ? 'cuota' : 'cuotas'}
+        de <span className="font-semibold text-ink">{total}</span> {total === 1 ? unidad[0] : unidad[1]}
       </p>
       {total_paginas > 1 && (
         <div className="flex items-center gap-2">
