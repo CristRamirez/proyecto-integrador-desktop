@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { listarCuotas } from '../../api/cobranzas'
-import { Aviso, Boton, Campo, claseInput } from '../../components/ui'
+import { Aviso, Boton, Campo, Paginado, claseInput } from '../../components/ui'
 import { fecha, moneda, monedaCorta, periodo, periodosRecientes } from '../internos/formato'
 import { estaVencida, tieneSaldo } from './cuota'
 import EstadoCuota from './EstadoCuota'
@@ -19,19 +19,6 @@ const ESTADOS = [
 
 function iniciales({ apellido, nombre }) {
   return `${apellido?.[0] ?? ''}${nombre?.[0] ?? ''}`.toUpperCase()
-}
-
-// Páginas a mostrar: la primera, la última y las vecinas de la actual.
-function paginasVisibles(actual, total) {
-  const elegidas = [...new Set([1, actual - 1, actual, actual + 1, total])]
-    .filter((p) => p >= 1 && p <= total)
-    .sort((a, b) => a - b)
-  const resultado = []
-  elegidas.forEach((p, i) => {
-    if (i > 0 && p - elegidas[i - 1] > 1) resultado.push(`salto-${p}`)
-    resultado.push(p)
-  })
-  return resultado
 }
 
 const PUNTOS = { neutro: 'bg-accent', ok: 'bg-ok', aviso: 'bg-warn', peligro: 'bg-danger' }
@@ -91,55 +78,6 @@ export function Indicadores({ resumen, periodoElegido }) {
         valor={resumen.vencido}
         detalle={`${resumen.internos_con_vencidas} ${resumen.internos_con_vencidas === 1 ? 'interno' : 'internos'}`}
       />
-    </div>
-  )
-}
-
-export function Paginado({ paginacion, cantidad, cargando, onPagina, unidad = ['cuota', 'cuotas'] }) {
-  const { pagina, por_pagina, total, total_paginas } = paginacion
-  const desde = (pagina - 1) * por_pagina + 1
-  const clasePagina =
-    'h-10 min-w-10 cursor-pointer rounded-xs border px-3 font-mono text-[14px] transition-colors duration-150 disabled:cursor-default'
-
-  return (
-    <div className="mt-4 flex items-center justify-between gap-4 text-[15px] text-ink-soft">
-      <p>
-        Mostrando{' '}
-        <span className="font-semibold text-ink">
-          {desde}–{desde + cantidad - 1}
-        </span>{' '}
-        de <span className="font-semibold text-ink">{total}</span> {total === 1 ? unidad[0] : unidad[1]}
-      </p>
-      {total_paginas > 1 && (
-        <div className="flex items-center gap-2">
-          <Boton variante="secundario" onClick={() => onPagina(pagina - 1)} disabled={cargando || pagina <= 1}>
-            Anterior
-          </Boton>
-          {paginasVisibles(pagina, total_paginas).map((p) =>
-            typeof p === 'string' ? (
-              <span key={p} className="px-1" aria-hidden="true">
-                …
-              </span>
-            ) : (
-              <button
-                key={p}
-                type="button"
-                onClick={() => onPagina(p)}
-                disabled={cargando || p === pagina}
-                aria-current={p === pagina ? 'page' : undefined}
-                className={`${clasePagina} ${
-                  p === pagina ? 'border-rail bg-rail text-white' : 'border-line-strong bg-surface text-ink hover:bg-accent-soft'
-                }`}
-              >
-                {p}
-              </button>
-            )
-          )}
-          <Boton variante="secundario" onClick={() => onPagina(pagina + 1)} disabled={cargando || pagina >= total_paginas}>
-            Siguiente
-          </Boton>
-        </div>
-      )}
     </div>
   )
 }

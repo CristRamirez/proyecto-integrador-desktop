@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { listarRoles, listarUsuarios } from '../../api/usuarios'
-import { Aviso, Boton, Campo, claseInput } from '../../components/ui'
-import { Paginado } from '../cobranzas/CuotasDelPeriodo'
+import { Aviso, Boton, Campo, Paginado, claseInput } from '../../components/ui'
 import { fecha } from '../internos/formato'
 import AccesoUsuario from './AccesoUsuario'
 import FormularioUsuario from './FormularioUsuario'
