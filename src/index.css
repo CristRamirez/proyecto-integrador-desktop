@@ -22,7 +22,9 @@
   --color-ink-soft: #5b564d;
   --color-ink-faint: #736d62;
 
-  --color-rail: #33302b;
+  --color-rail: #2b2824;
+  --color-rail-active: #3b3835;
+  --color-rail-mark: #d9c9a8;
   --color-rail-soft: #b3aca0;
   --color-rail-line: #46423b;
 

@@ -6,6 +6,10 @@ const ICONOS = {
   persona: 'M12 12a4 4 0 100-8 4 4 0 000 8zM4 20c0-3.3 3.6-6 8-6s8 2.7 8 6',
   alerta: 'M12 3L2 20h20L12 3zM12 10v4M12 17h.01',
   info: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 11v5M12 8h.01',
+  inicio: 'M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1v-9.5z',
+  billete: 'M4 6h16a1.5 1.5 0 011.5 1.5v9A1.5 1.5 0 0120 18H4a1.5 1.5 0 01-1.5-1.5v-9A1.5 1.5 0 014 6zM12 14.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z',
+  recibo: 'M6 3h12v18l-3-2-3 2-3-2-3 2V3zM9 8h6M9 12h6',
+  ajustes: 'M20 7h-9M14 17H4M17 20a3 3 0 100-6 3 3 0 000 6zM7 10a3 3 0 100-6 3 3 0 000 6z',
 }
 
 export function Icono({ nombre, className = 'h-5 w-5' }) {
