@@ -22,11 +22,7 @@ export default function Sidebar({ modulos = [], activo, onSelect }) {
         <span className="text-[15px] leading-tight font-semibold text-white">Gestión de Internos</span>
       </div>
 
-      <nav className="flex-1 px-3 pt-6">
-        <p className="px-3 pb-2.5 font-mono text-[12px] tracking-[0.18em] text-rail-soft/70 uppercase">
-          Módulos
-        </p>
-
+      <nav className="flex-1 px-3 pt-4">
         {modulos.length === 0 ? (
           <p className="px-3 py-3 text-[14px] text-rail-soft/70">
             Sin módulos para tu rol
