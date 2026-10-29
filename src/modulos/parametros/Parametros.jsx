@@ -24,7 +24,7 @@ function Historico({ configuraciones }) {
               {fecha(c.creado_en)}
               {!!c.es_actual && (
                 <span className="ml-2">
-                  <Marca>Vigente</Marca>
+                  <Marca tono="ok">Vigente</Marca>
                 </span>
               )}
             </td>
@@ -114,7 +114,7 @@ export default function Parametros() {
 
       {aviso && (
         <div className="mb-6">
-          <Aviso>{aviso}</Aviso>
+          <Aviso tono="ok">{aviso}</Aviso>
         </div>
       )}
 

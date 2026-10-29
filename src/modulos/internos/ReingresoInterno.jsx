@@ -84,7 +84,7 @@ export default function ReingresoInterno({ interno, conCobranzas, onCancelar, on
 
         {deuda > 0 && (
           <div className="mb-5">
-            <Aviso>Tiene {moneda(deuda)} adeudados de estadías anteriores. El reingreso no lo impide.</Aviso>
+            <Aviso tono="neutro">Tiene {moneda(deuda)} adeudados de estadías anteriores. El reingreso no lo impide.</Aviso>
           </div>
         )}
 

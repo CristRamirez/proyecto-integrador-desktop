@@ -57,7 +57,7 @@ export default function AccesoUsuario({ usuario, esPropio, onActualizado }) {
         <Dato etiqueta="Estado">
           <span className="flex flex-wrap items-center gap-2">
             {habilitado ? 'Habilitado' : 'Deshabilitado'}
-            {usuario.bloqueado && <Marca>Bloqueado</Marca>}
+            {usuario.bloqueado && <Marca tono="peligro">Bloqueado</Marca>}
           </span>
         </Dato>
         <Dato etiqueta="Inicio de sesión">
@@ -122,7 +122,7 @@ export default function AccesoUsuario({ usuario, esPropio, onActualizado }) {
 
       {abierto === 'deshabilitar' && (
         <div className="mt-6 border-t border-line pt-6">
-          <Aviso>
+          <Aviso tono="neutro">
             ¿Deshabilitar a {quien}? No va a poder iniciar sesión hasta que se lo vuelva a habilitar. Lo que cargó
             queda registrado igual.
           </Aviso>

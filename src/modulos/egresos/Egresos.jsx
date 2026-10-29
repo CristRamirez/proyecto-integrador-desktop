@@ -260,7 +260,7 @@ export default function Egresos() {
 
       {aviso && (
         <div className="mt-6">
-          <Aviso>{aviso}</Aviso>
+          <Aviso tono="ok">{aviso}</Aviso>
         </div>
       )}
 

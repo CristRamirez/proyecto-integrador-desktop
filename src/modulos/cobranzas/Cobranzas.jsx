@@ -51,7 +51,7 @@ export default function Cobranzas({ accion }) {
   function cuotasGeneradas(resultado) {
     const { anio, mes } = resultado.periodo
     setGenerando(false)
-    setAviso(resultadoDeGenerar(resultado))
+    setAviso({ texto: resultadoDeGenerar(resultado), tono: resultado.creadas > 0 ? 'ok' : 'neutro' })
     setFiltros((f) => ({ ...f, periodo: `${anio}-${String(mes).padStart(2, '0')}`, pagina: 1 }))
     setVersion((v) => v + 1)
   }
@@ -73,7 +73,7 @@ export default function Cobranzas({ accion }) {
     <>
       {aviso && (
         <div className="mt-6">
-          <Aviso>{aviso}</Aviso>
+          <Aviso tono={aviso.tono}>{aviso.texto}</Aviso>
         </div>
       )}
       {generando && (

@@ -143,8 +143,8 @@ export default function Padron({ titulo = 'Padrón de internos', subtitulo, onNu
                   <td className="px-5 py-4 capitalize">{i.estado}</td>
                   <td className="px-5 py-4">
                     <div className="flex flex-wrap gap-2">
-                      {i.tiene_deuda && <Marca>Deuda</Marca>}
-                      {!!i.judicializado && <Marca>Judicial</Marca>}
+                      {i.tiene_deuda && <Marca tono="aviso">Deuda</Marca>}
+                      {!!i.judicializado && <Marca tono="peligro">Judicial</Marca>}
                     </div>
                   </td>
                 </tr>

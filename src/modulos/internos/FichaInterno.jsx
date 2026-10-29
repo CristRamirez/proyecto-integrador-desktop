@@ -156,9 +156,9 @@ export default function FichaInterno({ id, inicial, guardado, onVolver, onEditar
             {interno.apellido}, {interno.nombre}
           </h1>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <Marca>{interno.estado}</Marca>
-            {!!interno.judicializado && <Marca>Judicial</Marca>}
-            {interno.tiene_deuda && <Marca>Deuda</Marca>}
+            <Marca tono={interno.estado === 'activo' ? 'ok' : 'neutro'}>{interno.estado}</Marca>
+            {!!interno.judicializado && <Marca tono="peligro">Judicial</Marca>}
+            {interno.tiene_deuda && <Marca tono="aviso">Deuda</Marca>}
           </div>
           {interno.modificado_en && (
             <p className="mt-2 text-[14px] text-ink-soft">Última modificación: {fechaHora(interno.modificado_en)}</p>
@@ -184,7 +184,7 @@ export default function FichaInterno({ id, inicial, guardado, onVolver, onEditar
 
       {aviso && (
         <div className="mb-6">
-          <Aviso>{aviso}</Aviso>
+          <Aviso tono="ok">{aviso}</Aviso>
         </div>
       )}
 

@@ -5,6 +5,7 @@ const ICONOS = {
   volver: 'M19 12H5M11 6l-6 6 6 6',
   persona: 'M12 12a4 4 0 100-8 4 4 0 000 8zM4 20c0-3.3 3.6-6 8-6s8 2.7 8 6',
   alerta: 'M12 3L2 20h20L12 3zM12 10v4M12 17h.01',
+  info: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 11v5M12 8h.01',
 }
 
 export function Icono({ nombre, className = 'h-5 w-5' }) {
@@ -88,21 +89,35 @@ export function Dato({ etiqueta, className = '', children }) {
   )
 }
 
-export function Marca({ children }) {
+const MARCAS = {
+  neutro: 'bg-accent-soft text-ink-soft',
+  ok: 'bg-ok-soft text-ok-ink',
+  aviso: 'bg-warn-soft text-warn-ink',
+  peligro: 'bg-danger-soft text-danger',
+}
+
+export function Marca({ tono = 'neutro', children }) {
   return (
-    <span className="inline-block rounded-xs border border-ink px-2 py-0.5 font-mono text-[12px] tracking-[0.08em] text-ink uppercase">
+    <span
+      className={`inline-block rounded-xs px-2 py-0.5 font-mono text-[12px] tracking-[0.08em] uppercase ${MARCAS[tono]}`}
+    >
       {children}
     </span>
   )
 }
 
-export function Aviso({ children }) {
+const AVISOS = {
+  peligro: { clase: 'border-danger/25 bg-danger-soft/70 text-danger', icono: 'alerta', rol: 'alert' },
+  ok: { clase: 'border-ok/30 bg-ok-soft/70 text-ok-ink', icono: 'check', rol: 'status' },
+  neutro: { clase: 'border-line bg-head text-ink', icono: 'info', rol: 'status' },
+}
+
+export function Aviso({ tono = 'peligro', children }) {
+  const { clase, icono, rol } = AVISOS[tono]
   return (
-    <p
-      role="alert"
-      className="border-l-4 border-ink bg-accent-soft px-4 py-3 text-[16px] font-semibold text-ink"
-    >
-      {children}
-    </p>
+    <div role={rol} className={`flex items-start gap-3 rounded-sm border px-4 py-3 text-[16px] font-medium ${clase}`}>
+      <Icono nombre={icono} className="mt-0.5 h-5 w-5 shrink-0" />
+      <div className="min-w-0">{children}</div>
+    </div>
   )
 }

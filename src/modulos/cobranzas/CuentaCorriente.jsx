@@ -100,17 +100,19 @@ export default function CuentaCorriente({ id, cuotaInicial, onVolver, etiquetaVo
     })
     setAbiertas((s) => new Set(s).add(cuota.id))
     setPagando(null)
-    setAviso(
-      cuota.saldo_pendiente > 0
-        ? `Pago registrado. La cuota de ${periodo(cuota.periodo)} queda con un saldo de ${moneda(cuota.saldo_pendiente)}.`
-        : `Pago registrado. La cuota de ${periodo(cuota.periodo)} quedó pagada.`
-    )
+    setAviso({
+      tono: 'ok',
+      texto:
+        cuota.saldo_pendiente > 0
+          ? `Pago registrado. La cuota de ${periodo(cuota.periodo)} queda con un saldo de ${moneda(cuota.saldo_pendiente)}.`
+          : `Pago registrado. La cuota de ${periodo(cuota.periodo)} quedó pagada.`,
+    })
     arriba.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
   function cuotaDesactualizada(mensaje) {
     setPagando(null)
-    setAviso(`${mensaje}. Se actualizó la cuenta corriente.`)
+    setAviso({ tono: 'neutro', texto: `${mensaje}. Se actualizó la cuenta corriente.` })
     setIntento((n) => n + 1)
     arriba.current?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -167,7 +169,7 @@ export default function CuentaCorriente({ id, cuotaInicial, onVolver, etiquetaVo
 
       {aviso && (
         <div className="mb-6">
-          <Aviso>{aviso}</Aviso>
+          <Aviso tono={aviso.tono}>{aviso.texto}</Aviso>
         </div>
       )}
 

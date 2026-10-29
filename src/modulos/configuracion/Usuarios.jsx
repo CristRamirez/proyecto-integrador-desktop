@@ -155,7 +155,7 @@ export default function Usuarios({ usuario: actual }) {
         </Encabezado>
         {aviso && (
           <div className="mb-6">
-            <Aviso>{aviso}</Aviso>
+            <Aviso tono="ok">{aviso}</Aviso>
           </div>
         )}
         <div className="space-y-6">
@@ -204,7 +204,7 @@ export default function Usuarios({ usuario: actual }) {
 
       {aviso && (
         <div className="mb-6">
-          <Aviso>{aviso}</Aviso>
+          <Aviso tono="ok">{aviso}</Aviso>
         </div>
       )}
 
