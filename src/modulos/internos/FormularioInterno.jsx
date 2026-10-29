@@ -358,7 +358,7 @@ export default function FormularioInterno({ interno, onCancelar, onGuardado, onA
             </Campo>
             <div>
               <Etiqueta>Situación judicial</Etiqueta>
-              <label className="flex h-12 cursor-pointer items-center gap-3 text-[16px] text-ink">
+              <label className="flex h-11 cursor-pointer items-center gap-3 text-[16px] text-ink">
                 <input
                   type="checkbox"
                   className="h-5 w-5 cursor-pointer accent-rail"
