@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { listarCuotas } from '../../api/cobranzas'
-import { Aviso, Boton, Campo, Paginado, claseInput } from '../../components/ui'
+import { Avatar, Aviso, Boton, Buscador, Filtro, Paginado, claseCabecera, claseFila } from '../../components/ui'
 import { fecha, moneda, monedaCorta, periodo, periodosRecientes } from '../internos/formato'
 import { estaVencida, tieneSaldo } from './cuota'
 import EstadoCuota from './EstadoCuota'
@@ -16,10 +16,6 @@ const ESTADOS = [
   ['pagada', 'Pagadas'],
   ['anulada', 'Anuladas'],
 ]
-
-function iniciales({ apellido, nombre }) {
-  return `${apellido?.[0] ?? ''}${nombre?.[0] ?? ''}`.toUpperCase()
-}
 
 const PUNTOS = { neutro: 'bg-accent', ok: 'bg-ok', aviso: 'bg-warn', peligro: 'bg-danger' }
 
@@ -87,18 +83,10 @@ function FilaCuota({ cuota, onAbrir, onPagar }) {
   const vencida = estaVencida(cuota)
 
   return (
-    <tr
-      onClick={() => onAbrir(interno.id)}
-      className="cursor-pointer border-b border-line transition-colors duration-150 last:border-b-0 hover:bg-accent-soft"
-    >
+    <tr onClick={() => onAbrir(interno.id)} className={`cursor-pointer ${claseFila}`}>
       <td className="px-4 py-3">
         <div className="flex items-center gap-3">
-          <span
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft font-mono text-[12px] text-ink-soft"
-            aria-hidden="true"
-          >
-            {iniciales(interno)}
-          </span>
+          <Avatar apellido={interno.apellido} nombre={interno.nombre} />
           <div className="whitespace-nowrap">
             <button
               type="button"
@@ -122,8 +110,8 @@ function FilaCuota({ cuota, onAbrir, onPagar }) {
       <td className="px-4 py-3 text-right">
         {tieneSaldo(cuota) ? (
           <Boton
-            variante={vencida ? 'primario' : 'secundario'}
-            className="whitespace-nowrap"
+            variante="secundario"
+            chico
             onClick={(e) => {
               e.stopPropagation()
               onPagar(interno.id, cuota.id)
@@ -182,7 +170,7 @@ export default function CuotasDelPeriodo({ filtros, onFiltros, onAbrir, onPagar,
 
   return (
     <div className="mx-auto max-w-6xl px-8 py-8">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-end justify-between gap-4">
         <div>
           <h1 className="font-serif text-[28px] font-semibold text-ink">Cobranzas</h1>
           <p className="mt-1 text-[16px] text-ink-soft">Cuotas de {periodo(periodoElegido)}</p>
@@ -198,35 +186,28 @@ export default function CuotasDelPeriodo({ filtros, onFiltros, onAbrir, onPagar,
         </div>
       )}
 
-      <div className="mt-6 grid grid-cols-[1fr_220px_200px] gap-4">
-        <Campo etiqueta="Buscar">
-          <input
-            type="search"
-            className={claseInput}
-            value={texto}
-            onChange={(e) => setTexto(e.target.value)}
-            placeholder="Interno por apellido, DNI o legajo"
-            autoFocus
-          />
-        </Campo>
-        <Campo etiqueta="Período">
-          <select className={`${claseInput} capitalize`} value={periodoElegido} onChange={filtrar('periodo')}>
-            {periodosRecientes().map((p) => (
-              <option key={p} value={p}>
-                {periodo(p)}
-              </option>
-            ))}
-          </select>
-        </Campo>
-        <Campo etiqueta="Estado">
-          <select className={claseInput} value={estado} onChange={filtrar('estado')}>
-            {ESTADOS.map(([valor, etiqueta]) => (
-              <option key={valor} value={valor}>
-                {etiqueta}
-              </option>
-            ))}
-          </select>
-        </Campo>
+      <div className="mt-6 grid grid-cols-2 gap-3 xl:grid-cols-[1fr_250px_220px]">
+        <Buscador
+          className="col-span-2 xl:col-span-1"
+          value={texto}
+          onChange={(e) => setTexto(e.target.value)}
+          placeholder="Interno por apellido, DNI o legajo"
+          autoFocus
+        />
+        <Filtro etiqueta="Período" claseSelect="capitalize" value={periodoElegido} onChange={filtrar('periodo')}>
+          {periodosRecientes().map((p) => (
+            <option key={p} value={p}>
+              {periodo(p)}
+            </option>
+          ))}
+        </Filtro>
+        <Filtro etiqueta="Estado" value={estado} onChange={filtrar('estado')}>
+          {ESTADOS.map(([valor, etiqueta]) => (
+            <option key={valor} value={valor}>
+              {etiqueta}
+            </option>
+          ))}
+        </Filtro>
       </div>
 
       {error && (
@@ -257,7 +238,7 @@ export default function CuotasDelPeriodo({ filtros, onFiltros, onAbrir, onPagar,
         ) : (
           <table className="w-full text-left text-[16px] text-ink">
             <thead>
-              <tr className="border-b border-line font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">
+              <tr className={claseCabecera}>
                 <th className="px-4 py-3 font-normal">Interno</th>
                 <th className="px-4 py-3 font-normal">Vence</th>
                 <th className="px-4 py-3 text-right font-normal">Importe</th>

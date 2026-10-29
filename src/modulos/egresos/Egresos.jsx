@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { listarCuotas } from '../../api/cobranzas'
 import { listarEgresos } from '../../api/egresos'
-import { Aviso, Boton, Campo, Marca, Paginado, claseInput } from '../../components/ui'
+import { Aviso, Boton, Estado, Filtro, Marca, Paginado, claseCabecera } from '../../components/ui'
 import { Indicador } from '../cobranzas/CuotasDelPeriodo'
 import { fecha, fechaHoraDesdeUtc, moneda, monedaCorta, periodo, periodoActual, periodosRecientes } from '../internos/formato'
 import AnularEgreso from './AnularEgreso'
@@ -105,15 +105,6 @@ function PorCategoria({ resumen, elegida, onElegir }) {
   )
 }
 
-function Anulado() {
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-0.5 text-[14px] whitespace-nowrap text-ink">
-      <span className="h-1.5 w-1.5 rounded-full bg-line-strong" aria-hidden="true" />
-      Anulado
-    </span>
-  )
-}
-
 function FilaEgreso({ egreso, seleccionado, onEditar, onAnular }) {
   const anulado = estaAnulado(egreso)
   const detalle = [egreso.observaciones, egreso.registrado_por && `Cargó ${egreso.registrado_por}`]
@@ -122,7 +113,7 @@ function FilaEgreso({ egreso, seleccionado, onEditar, onAnular }) {
 
   return (
     <tr
-      className={`border-b border-line last:border-b-0 ${anulado ? 'text-ink-soft' : ''} ${seleccionado ? 'bg-accent-soft' : ''}`}
+      className={`border-b border-line-soft last:border-b-0 ${anulado ? 'text-ink-soft' : ''} ${seleccionado ? 'bg-accent-soft/60' : ''}`}
     >
       <td className="px-4 py-3 align-top whitespace-nowrap">{fecha(egreso.fecha)}</td>
       <td className="px-4 py-3 align-top">
@@ -149,13 +140,13 @@ function FilaEgreso({ egreso, seleccionado, onEditar, onAnular }) {
       </td>
       <td className="px-4 py-3 text-right align-top">
         {anulado ? (
-          <Anulado />
+          <Estado>Anulado</Estado>
         ) : (
           <div className="flex justify-end gap-2">
-            <Boton variante="secundario" onClick={() => onEditar(egreso)}>
+            <Boton variante="secundario" chico onClick={() => onEditar(egreso)}>
               Editar
             </Boton>
-            <Boton variante="sutil" onClick={() => onAnular(egreso)}>
+            <Boton variante="sutil" chico onClick={() => onAnular(egreso)}>
               Anular
             </Boton>
           </div>
@@ -246,7 +237,7 @@ export default function Egresos() {
 
   return (
     <div className="mx-auto max-w-6xl px-8 py-8">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-end justify-between gap-4">
         <div>
           <h1 className="font-serif text-[28px] font-semibold text-ink">Egresos</h1>
           <p className="mt-1 text-[16px] text-ink-soft">Gastos de la institución en {periodo(periodoElegido)}</p>
@@ -295,30 +286,27 @@ export default function Egresos() {
         </div>
       )}
 
-      <div className="mt-6 grid grid-cols-[220px_260px] gap-4">
-        <Campo etiqueta="Período">
-          <select
-            className={`${claseInput} capitalize`}
-            value={periodoElegido}
-            onChange={(e) => filtrar('periodo', e.target.value)}
-          >
-            {opcionesDePeriodo(periodoElegido).map((p) => (
-              <option key={p} value={p}>
-                {periodo(p)}
-              </option>
-            ))}
-          </select>
-        </Campo>
-        <Campo etiqueta="Categoría">
-          <select className={claseInput} value={categoria} onChange={(e) => filtrar('categoria', e.target.value)}>
-            <option value="">Todas</option>
-            {categorias.map((c) => (
-              <option key={c} value={c}>
-                {nombreCategoria(c)}
-              </option>
-            ))}
-          </select>
-        </Campo>
+      <div className="mt-6 grid grid-cols-[250px_280px] gap-3">
+        <Filtro
+          etiqueta="Período"
+          claseSelect="capitalize"
+          value={periodoElegido}
+          onChange={(e) => filtrar('periodo', e.target.value)}
+        >
+          {opcionesDePeriodo(periodoElegido).map((p) => (
+            <option key={p} value={p}>
+              {periodo(p)}
+            </option>
+          ))}
+        </Filtro>
+        <Filtro etiqueta="Categoría" value={categoria} onChange={(e) => filtrar('categoria', e.target.value)}>
+          <option value="">Todas</option>
+          {categorias.map((c) => (
+            <option key={c} value={c}>
+              {nombreCategoria(c)}
+            </option>
+          ))}
+        </Filtro>
       </div>
 
       {error && (
@@ -349,7 +337,7 @@ export default function Egresos() {
         ) : (
           <table className="w-full text-left text-[16px] text-ink">
             <thead>
-              <tr className="border-b border-line font-mono text-[12px] tracking-[0.14em] whitespace-nowrap text-ink-soft uppercase">
+              <tr className={`${claseCabecera} whitespace-nowrap`}>
                 <th className="px-4 py-3 font-normal">Fecha</th>
                 <th className="px-4 py-3 font-normal">Concepto</th>
                 <th className="px-4 py-3 font-normal">Categoría</th>

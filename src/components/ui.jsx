@@ -43,12 +43,13 @@ const VARIANTES = {
   sutil: 'text-ink-soft hover:bg-accent-soft hover:text-ink',
 }
 
-export function Boton({ icono, variante = 'primario', children, className = '', ...props }) {
+export function Boton({ icono, variante = 'primario', chico = false, children, className = '', ...props }) {
+  const tamaño = chico ? 'h-9 px-3.5 text-[14px]' : 'h-11 px-[18px] text-[15px]'
   return (
     <button
       type="button"
       {...props}
-      className={`inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xs px-[18px] text-[15px] font-semibold transition-colors duration-150 disabled:cursor-default disabled:opacity-50 ${VARIANTES[variante]} ${className}`}
+      className={`inline-flex ${tamaño} cursor-pointer items-center justify-center gap-2 rounded-xs font-semibold whitespace-nowrap transition-colors duration-150 disabled:cursor-default disabled:opacity-50 ${VARIANTES[variante]} ${className}`}
     >
       {icono && <Icono nombre={icono} className="h-[18px] w-[18px]" />}
       {children}
@@ -81,18 +82,28 @@ export function Buscador({ etiqueta = 'Buscar', className = '', ...props }) {
   )
 }
 
-export function Filtro({ etiqueta, className = '', children, ...props }) {
+const claseCajaFiltro =
+  'flex h-11 items-center gap-2 rounded-xs border border-line-strong bg-white pl-3.5 transition-shadow duration-150 focus-within:border-ink focus-within:ring-3 focus-within:ring-ink/12'
+
+const claseControlFiltro =
+  'h-full min-w-0 flex-1 cursor-pointer bg-transparent pr-2 text-[16px] font-semibold text-ink outline-none'
+
+export function Filtro({ etiqueta, className = '', claseSelect = '', children, ...props }) {
   return (
-    <label
-      className={`flex h-11 items-center gap-2 rounded-xs border border-line-strong bg-white pl-3.5 transition-shadow duration-150 focus-within:border-ink focus-within:ring-3 focus-within:ring-ink/12 ${className}`}
-    >
+    <label className={`${claseCajaFiltro} ${className}`}>
       <span className="shrink-0 text-[14px] text-ink-soft">{etiqueta}</span>
-      <select
-        {...props}
-        className="h-full min-w-0 flex-1 cursor-pointer bg-transparent pr-2 text-[16px] font-semibold text-ink outline-none"
-      >
+      <select {...props} className={`${claseControlFiltro} ${claseSelect}`}>
         {children}
       </select>
+    </label>
+  )
+}
+
+export function FiltroFecha({ etiqueta, className = '', ...props }) {
+  return (
+    <label className={`${claseCajaFiltro} ${className}`}>
+      <span className="shrink-0 text-[14px] text-ink-soft">{etiqueta}</span>
+      <input type="date" {...props} className={claseControlFiltro} />
     </label>
   )
 }
@@ -101,13 +112,26 @@ export const claseCabecera = 'border-b border-line bg-head font-mono text-[12px]
 
 export const claseFila = 'border-b border-line-soft transition-colors duration-150 last:border-b-0 hover:bg-accent-soft/50'
 
-export function Avatar({ apellido, nombre }) {
+function iniciales({ apellido, nombre, nombreCompleto }) {
+  if (nombreCompleto) {
+    return nombreCompleto
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((parte) => parte[0])
+      .join('')
+      .toUpperCase()
+  }
+  return `${apellido?.[0] ?? ''}${nombre?.[0] ?? ''}`.toUpperCase()
+}
+
+export function Avatar(props) {
   return (
     <span
       aria-hidden="true"
       className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft font-mono text-[12px] text-ink-soft"
     >
-      {`${apellido?.[0] ?? ''}${nombre?.[0] ?? ''}`.toUpperCase()}
+      {iniciales(props)}
     </span>
   )
 }
