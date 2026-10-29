@@ -10,6 +10,7 @@ const ICONOS = {
   billete: 'M4 6h16a1.5 1.5 0 011.5 1.5v9A1.5 1.5 0 0120 18H4a1.5 1.5 0 01-1.5-1.5v-9A1.5 1.5 0 014 6zM12 14.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z',
   recibo: 'M6 3h12v18l-3-2-3 2-3-2-3 2V3zM9 8h6M9 12h6',
   ajustes: 'M20 7h-9M14 17H4M17 20a3 3 0 100-6 3 3 0 000 6zM7 10a3 3 0 100-6 3 3 0 000 6z',
+  salir: 'M14 4h4a2 2 0 012 2v12a2 2 0 01-2 2h-4M10 16l-4-4 4-4M6 12h10',
 }
 
 export function Icono({ nombre, className = 'h-5 w-5' }) {
