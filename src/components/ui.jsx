@@ -16,6 +16,8 @@ const ICONOS = {
   ojoCerrado:
     'M3 3l18 18M10.6 5.1A10.4 10.4 0 0112 5c6.5 0 10 7 10 7a17 17 0 01-3.2 4.2M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7a9.7 9.7 0 005.4-1.6M9.9 9.9a3 3 0 004.2 4.2',
   flecha: 'M5 12h14M13 6l6 6-6 6',
+  buscar: 'M11 18a7 7 0 100-14 7 7 0 000 14zM20 20l-3.5-3.5',
+  derecha: 'M9 6l6 6-6 6',
 }
 
 export function Icono({ nombre, className = 'h-5 w-5' }) {
@@ -66,6 +68,50 @@ export function Etiqueta({ children, obligatorio }) {
 export const claseInput =
   'h-11 w-full rounded-xs border border-line-strong bg-white px-3.5 text-[16px] text-ink transition-shadow duration-150 focus:border-ink focus:ring-3 focus:ring-ink/12 focus:outline-none aria-invalid:border-danger aria-invalid:ring-3 aria-invalid:ring-danger/12 disabled:bg-accent-soft disabled:text-ink-soft'
 
+export function Buscador({ etiqueta = 'Buscar', className = '', ...props }) {
+  return (
+    <label className={`relative block ${className}`}>
+      <span className="sr-only">{etiqueta}</span>
+      <Icono
+        nombre="buscar"
+        className="pointer-events-none absolute top-1/2 left-3.5 h-[18px] w-[18px] -translate-y-1/2 text-ink-faint"
+      />
+      <input type="search" {...props} className={`${claseInput} pl-10`} />
+    </label>
+  )
+}
+
+export function Filtro({ etiqueta, className = '', children, ...props }) {
+  return (
+    <label
+      className={`flex h-11 items-center gap-2 rounded-xs border border-line-strong bg-white pl-3.5 transition-shadow duration-150 focus-within:border-ink focus-within:ring-3 focus-within:ring-ink/12 ${className}`}
+    >
+      <span className="shrink-0 text-[14px] text-ink-soft">{etiqueta}</span>
+      <select
+        {...props}
+        className="h-full min-w-0 flex-1 cursor-pointer bg-transparent pr-2 text-[16px] font-semibold text-ink outline-none"
+      >
+        {children}
+      </select>
+    </label>
+  )
+}
+
+export const claseCabecera = 'border-b border-line bg-head font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase'
+
+export const claseFila = 'border-b border-line-soft transition-colors duration-150 last:border-b-0 hover:bg-accent-soft/50'
+
+export function Avatar({ apellido, nombre }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft font-mono text-[12px] text-ink-soft"
+    >
+      {`${apellido?.[0] ?? ''}${nombre?.[0] ?? ''}`.toUpperCase()}
+    </span>
+  )
+}
+
 export function Campo({ etiqueta, obligatorio, error, className = '', children }) {
   return (
     <label className={`block ${className}`}>
@@ -111,6 +157,17 @@ export function Marca({ tono = 'neutro', children }) {
     <span
       className={`inline-block rounded-xs px-2 py-0.5 font-mono text-[12px] tracking-[0.08em] uppercase ${MARCAS[tono]}`}
     >
+      {children}
+    </span>
+  )
+}
+
+export function Estado({ tono = 'neutro', children }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[14px] whitespace-nowrap ${MARCAS[tono]}`}
+    >
+      <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
       {children}
     </span>
   )
