@@ -17,9 +17,9 @@ export default function Sidebar({ modulos = [], activo, onSelect }) {
           aria-hidden="true"
           className="flex h-8 w-8 items-center justify-center rounded-xs bg-primary font-serif text-[14px] font-semibold text-white"
         >
-          GI
+          BS
         </span>
-        <span className="text-[15px] leading-tight font-semibold text-white">Gestión de Internos</span>
+        <span className="text-[15px] leading-tight font-semibold text-white">Buscando el Ser</span>
       </div>
 
       <nav className="flex-1 px-3 pt-4">

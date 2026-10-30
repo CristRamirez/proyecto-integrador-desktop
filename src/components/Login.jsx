@@ -42,9 +42,9 @@ export default function Login({ onLogin }) {
             aria-hidden="true"
             className="flex h-11 w-11 items-center justify-center rounded-sm bg-primary font-serif text-[17px] font-semibold text-white"
           >
-            GI
+            BS
           </span>
-          <span className="text-[16px] font-semibold text-white">Gestión de Internos</span>
+          <span className="text-[16px] font-semibold text-white">Buscando el Ser</span>
         </div>
 
         <div className="max-w-md">
