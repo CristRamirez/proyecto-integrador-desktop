@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { listarAuditoria, opcionesDeAuditoria } from '../../api/auditoria'
-import { Aviso, Boton, Campo, Paginado, claseInput } from '../../components/ui'
+import { Aviso, Boton, Filtro, FiltroFecha, Paginado, claseCabecera } from '../../components/ui'
 import { fechaHoraDesdeUtc, hoy, moneda } from '../internos/formato'
 
 const POR_PAGINA = 50
@@ -87,7 +87,7 @@ function Detalle({ detalle }) {
 
 function FilaRegistro({ registro }) {
   return (
-    <tr className="border-b border-line align-top last:border-b-0">
+    <tr className="border-b border-line-soft align-top last:border-b-0">
       <td className="px-4 py-3 font-mono text-[14px] whitespace-nowrap">{fechaHoraDesdeUtc(registro.fecha)}</td>
       <td className="px-4 py-3">
         {registro.usuario_id ? (
@@ -153,7 +153,7 @@ export default function Auditoria() {
 
   return (
     <div className="mx-auto max-w-5xl px-8 py-8">
-      <div className="mb-6 flex items-start justify-between gap-4">
+      <div className="mb-6 flex items-end justify-between gap-4">
         <div>
           <h1 className="font-serif text-[28px] font-semibold text-ink">Auditoría</h1>
           <p className="mt-1 text-[16px] text-ink-soft">
@@ -167,56 +167,48 @@ export default function Auditoria() {
         )}
       </div>
 
-      <div className="grid grid-cols-[1.3fr_1fr_1fr_150px_150px] gap-4">
-        <Campo etiqueta="Usuario">
-          <select className={claseInput} value={filtros.usuarioId} onChange={filtrar('usuarioId')}>
-            <option value="">Todos</option>
-            {opciones.usuarios.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.nombre ? `${u.nombre} (${u.usuario})` : u.usuario}
-              </option>
-            ))}
-          </select>
-        </Campo>
-        <Campo etiqueta="Acción">
-          <select className={claseInput} value={filtros.accion} onChange={filtrar('accion')}>
-            <option value="">Todas</option>
-            {opciones.acciones.map((a) => (
-              <option key={a} value={a}>
-                {nombreDe(ACCIONES, a)}
-              </option>
-            ))}
-          </select>
-        </Campo>
-        <Campo etiqueta="Sobre">
-          <select className={claseInput} value={filtros.entidad} onChange={filtrar('entidad')}>
-            <option value="">Todo</option>
-            {opciones.entidades.map((e) => (
-              <option key={e} value={e}>
-                {nombreDe(ENTIDADES, e)}
-              </option>
-            ))}
-          </select>
-        </Campo>
-        <Campo etiqueta="Desde">
-          <input
-            type="date"
-            className={claseInput}
-            value={filtros.desde}
-            max={filtros.hasta || hoy()}
-            onChange={filtrar('desde')}
-          />
-        </Campo>
-        <Campo etiqueta="Hasta">
-          <input
-            type="date"
-            className={claseInput}
-            value={filtros.hasta}
-            min={filtros.desde || undefined}
-            max={hoy()}
-            onChange={filtrar('hasta')}
-          />
-        </Campo>
+      <div className="grid grid-cols-3 gap-3">
+        <Filtro etiqueta="Usuario" value={filtros.usuarioId} onChange={filtrar('usuarioId')}>
+          <option value="">Todos</option>
+          {opciones.usuarios.map((u) => (
+            <option key={u.id} value={u.id}>
+              {u.nombre ? `${u.nombre} (${u.usuario})` : u.usuario}
+            </option>
+          ))}
+        </Filtro>
+        <Filtro etiqueta="Acción" value={filtros.accion} onChange={filtrar('accion')}>
+          <option value="">Todas</option>
+          {opciones.acciones.map((a) => (
+            <option key={a} value={a}>
+              {nombreDe(ACCIONES, a)}
+            </option>
+          ))}
+        </Filtro>
+        <Filtro etiqueta="Sobre" value={filtros.entidad} onChange={filtrar('entidad')}>
+          <option value="">Todo</option>
+          {opciones.entidades.map((e) => (
+            <option key={e} value={e}>
+              {nombreDe(ENTIDADES, e)}
+            </option>
+          ))}
+        </Filtro>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-3">
+        <FiltroFecha
+          etiqueta="Desde"
+          className="w-60"
+          value={filtros.desde}
+          max={filtros.hasta || hoy()}
+          onChange={filtrar('desde')}
+        />
+        <FiltroFecha
+          etiqueta="Hasta"
+          className="w-60"
+          value={filtros.hasta}
+          min={filtros.desde || undefined}
+          max={hoy()}
+          onChange={filtrar('hasta')}
+        />
       </div>
 
       {error && (
@@ -247,7 +239,7 @@ export default function Auditoria() {
         ) : (
           <table className="w-full text-left text-[16px] text-ink">
             <thead>
-              <tr className="border-b border-line font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">
+              <tr className={claseCabecera}>
                 <th className="px-4 py-3 font-normal">Fecha y hora</th>
                 <th className="px-4 py-3 font-normal">Usuario</th>
                 <th className="px-4 py-3 font-normal">Acción</th>

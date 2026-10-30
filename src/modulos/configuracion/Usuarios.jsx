@@ -1,6 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import { listarRoles, listarUsuarios } from '../../api/usuarios'
-import { Aviso, Boton, Campo, Paginado, claseInput } from '../../components/ui'
+import {
+  Avatar,
+  Aviso,
+  Boton,
+  Buscador,
+  Estado,
+  Filtro,
+  Icono,
+  Marca,
+  Paginado,
+  claseCabecera,
+  claseFila,
+} from '../../components/ui'
 import { fecha } from '../internos/formato'
 import AccesoUsuario from './AccesoUsuario'
 import FormularioUsuario from './FormularioUsuario'
@@ -9,61 +21,55 @@ import { etiquetaRol } from './usuario'
 const ESPERA_BUSQUEDA = 300
 const POR_PAGINA = 20
 
-function Estado({ usuario }) {
-  const habilitado = !!usuario.activo
+function EstadoUsuario({ usuario }) {
   return (
-    <span className="inline-flex flex-wrap items-center gap-2 whitespace-nowrap">
-      <span
-        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[14px] text-ink ${
-          habilitado ? 'bg-ok-soft' : 'bg-accent-soft'
-        }`}
-      >
-        <span className={`h-1.5 w-1.5 rounded-full ${habilitado ? 'bg-ok' : 'bg-line-strong'}`} aria-hidden="true" />
-        {habilitado ? 'Habilitado' : 'Deshabilitado'}
-      </span>
-      {usuario.bloqueado && (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-danger-soft px-2.5 py-0.5 text-[14px] text-ink">
-          <span className="h-1.5 w-1.5 rounded-full bg-danger" aria-hidden="true" />
-          Bloqueado
-        </span>
-      )}
+    <span className="inline-flex flex-wrap items-center gap-2">
+      <Estado tono={usuario.activo ? 'ok' : 'neutro'}>{usuario.activo ? 'Habilitado' : 'Deshabilitado'}</Estado>
+      {usuario.bloqueado && <Estado tono="peligro">Bloqueado</Estado>}
     </span>
   )
 }
 
 function FilaUsuario({ usuario, esPropio, onAbrir }) {
   return (
-    <tr
-      onClick={() => onAbrir(usuario)}
-      className="cursor-pointer border-b border-line transition-colors duration-150 last:border-b-0 hover:bg-accent-soft"
-    >
+    <tr onClick={() => onAbrir(usuario)} className={`group cursor-pointer ${claseFila}`}>
       <td className="px-4 py-3">
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation()
-            onAbrir(usuario)
-          }}
-          className="cursor-pointer text-left font-semibold underline-offset-4 hover:underline focus-visible:underline"
-        >
-          {usuario.nombre_completo}
-        </button>
-        {esPropio && <span className="ml-2 text-[14px] text-ink-soft">(vos)</span>}
-        <p className="font-mono text-[13px] text-ink-soft">{usuario.nombre_usuario}</p>
+        <div className="flex items-center gap-3">
+          <Avatar nombreCompleto={usuario.nombre_completo} />
+          <div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                onAbrir(usuario)
+              }}
+              className="cursor-pointer text-left font-semibold underline-offset-4 hover:underline focus-visible:underline"
+            >
+              {usuario.nombre_completo}
+            </button>
+            {esPropio && <span className="ml-2 text-[14px] text-ink-soft">(vos)</span>}
+            <p className="font-mono text-[13px] text-ink-soft">{usuario.nombre_usuario}</p>
+          </div>
+        </div>
       </td>
       <td className="px-4 py-3 text-ink-soft">{usuario.email ?? '—'}</td>
-      <td className="px-4 py-3 whitespace-nowrap">{etiquetaRol(usuario.rol)}</td>
+      <td className="px-4 py-3 whitespace-nowrap">
+        <Marca>{etiquetaRol(usuario.rol)}</Marca>
+      </td>
       <td className="px-4 py-3">
-        <Estado usuario={usuario} />
+        <EstadoUsuario usuario={usuario} />
       </td>
       <td className="px-4 py-3 whitespace-nowrap">{fecha(usuario.creado_en)}</td>
+      <td className="px-4 py-3 text-line-strong transition-colors duration-150 group-hover:text-ink">
+        <Icono nombre="derecha" className="h-[18px] w-[18px]" />
+      </td>
     </tr>
   )
 }
 
 function Encabezado({ titulo, subtitulo, children }) {
   return (
-    <div className="mb-6 flex items-start justify-between gap-4">
+    <div className="mb-6 flex items-end justify-between gap-4">
       <div>
         <h1 className="font-serif text-[28px] font-semibold text-ink">{titulo}</h1>
         {subtitulo && <p className="mt-1 text-[16px] text-ink-soft">{subtitulo}</p>}
@@ -190,7 +196,7 @@ export default function Usuarios({ usuario: actual }) {
     <div ref={raiz} className="mx-auto max-w-5xl px-8 py-8">
       <Encabezado titulo="Usuarios" subtitulo="Las cuentas de acceso al sistema, con su rol y los módulos que habilita.">
         <Boton
-          icono="persona"
+          icono="mas"
           className="shrink-0"
           onClick={() => {
             setAviso(null)
@@ -207,34 +213,27 @@ export default function Usuarios({ usuario: actual }) {
         </div>
       )}
 
-      <div className="grid grid-cols-[1fr_200px_200px] gap-4">
-        <Campo etiqueta="Buscar">
-          <input
-            type="search"
-            className={claseInput}
-            value={texto}
-            onChange={(e) => setTexto(e.target.value)}
-            placeholder="Usuario, nombre o email"
-            autoFocus
-          />
-        </Campo>
-        <Campo etiqueta="Rol">
-          <select className={claseInput} value={filtros.rolId} onChange={filtrar('rolId')}>
-            <option value="">Todos</option>
-            {roles.map((r) => (
-              <option key={r.id} value={r.id}>
-                {etiquetaRol(r.nombre)}
-              </option>
-            ))}
-          </select>
-        </Campo>
-        <Campo etiqueta="Estado">
-          <select className={claseInput} value={filtros.activo} onChange={filtrar('activo')}>
-            <option value="">Todos</option>
-            <option value="1">Habilitados</option>
-            <option value="0">Deshabilitados</option>
-          </select>
-        </Campo>
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-[1fr_220px_240px]">
+        <Buscador
+          className="col-span-2 xl:col-span-1"
+          value={texto}
+          onChange={(e) => setTexto(e.target.value)}
+          placeholder="Usuario, nombre o email"
+          autoFocus
+        />
+        <Filtro etiqueta="Rol" value={filtros.rolId} onChange={filtrar('rolId')}>
+          <option value="">Todos</option>
+          {roles.map((r) => (
+            <option key={r.id} value={r.id}>
+              {etiquetaRol(r.nombre)}
+            </option>
+          ))}
+        </Filtro>
+        <Filtro etiqueta="Estado" value={filtros.activo} onChange={filtrar('activo')}>
+          <option value="">Todos</option>
+          <option value="1">Habilitados</option>
+          <option value="0">Deshabilitados</option>
+        </Filtro>
       </div>
 
       {error && (
@@ -263,12 +262,13 @@ export default function Usuarios({ usuario: actual }) {
         ) : (
           <table className="w-full text-left text-[16px] text-ink">
             <thead>
-              <tr className="border-b border-line font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">
+              <tr className={claseCabecera}>
                 <th className="px-4 py-3 font-normal">Usuario</th>
                 <th className="px-4 py-3 font-normal">Email</th>
                 <th className="px-4 py-3 font-normal">Rol</th>
                 <th className="px-4 py-3 font-normal">Estado</th>
                 <th className="px-4 py-3 font-normal">Alta</th>
+                <th className="w-12 px-4 py-3" />
               </tr>
             </thead>
             <tbody>
