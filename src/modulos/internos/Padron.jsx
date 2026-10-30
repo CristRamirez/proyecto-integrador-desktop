@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { buscarInternos } from '../../api/internos'
-import { Avatar, Aviso, Boton, Buscador, Estado, Filtro, Icono, Marca, Paginado, claseCabecera, claseFila } from '../../components/ui'
+import { Avatar, Aviso, Boton, Buscador, Estado, Filtro, Icono, Marca, Paginado, Vacio, claseCabecera, claseFila } from '../../components/ui'
 import { edad, fecha } from './formato'
 
 const ESPERA_BUSQUEDA = 300
@@ -107,9 +107,9 @@ export default function Padron({
         aria-busy={cargando}
       >
         {internos.length === 0 ? (
-          <p className="px-6 py-10 text-center text-[16px] text-ink-soft">
+          <Vacio cargando={cargando}>
             {cargando ? 'Buscando…' : error ? 'No se pudo cargar el padrón.' : 'No hay internos que coincidan con la búsqueda.'}
-          </p>
+          </Vacio>
         ) : (
           <table className="w-full text-left text-[16px] text-ink">
             <thead>

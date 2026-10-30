@@ -10,6 +10,7 @@ import Cobranzas from './modulos/cobranzas/Cobranzas'
 import Egresos from './modulos/egresos/Egresos'
 import Configuracion from './modulos/configuracion/Configuracion'
 import { armarMenu, etiqueta } from './modulos/menu'
+import { Cargando } from './components/ui'
 
 const PANTALLAS = {
   inicio: Inicio,
@@ -22,7 +23,7 @@ const PANTALLAS = {
 function EnConstruccion() {
   return (
     <div className="flex h-full items-center justify-center">
-      <p className="font-mono text-[13px] tracking-[0.18em] text-ink-soft uppercase">Módulo en construcción</p>
+      <p className="text-[16px] text-ink-soft">Este módulo todavía está en construcción.</p>
     </div>
   )
 }
@@ -66,9 +67,7 @@ export default function App() {
   if (cargando) {
     return (
       <div className="flex h-full items-center justify-center bg-paper">
-        <p className="font-mono text-[13px] tracking-[0.18em] text-ink-soft uppercase">
-          Cargando…
-        </p>
+        <Cargando className="">Cargando…</Cargando>
       </div>
     )
   }

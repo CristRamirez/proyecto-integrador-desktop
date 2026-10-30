@@ -132,6 +132,7 @@ export default function AccesoUsuario({ usuario, esPropio, onActualizado }) {
             </Boton>
             <Boton
               icono="cruz"
+              variante="peligroLleno"
               disabled={trabajando}
               onClick={() =>
                 ejecutar(
@@ -163,7 +164,7 @@ export default function AccesoUsuario({ usuario, esPropio, onActualizado }) {
           </Boton>
           {habilitado
             ? !esPropio && (
-                <Boton variante="secundario" disabled={trabajando} onClick={() => abrir('deshabilitar')}>
+                <Boton variante="peligro" disabled={trabajando} onClick={() => abrir('deshabilitar')}>
                   Deshabilitar
                 </Boton>
               )

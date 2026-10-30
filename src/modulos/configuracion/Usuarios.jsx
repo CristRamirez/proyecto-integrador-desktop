@@ -10,6 +10,7 @@ import {
   Icono,
   Marca,
   Paginado,
+  Vacio,
   claseCabecera,
   claseFila,
 } from '../../components/ui'
@@ -250,13 +251,13 @@ export default function Usuarios({ usuario: actual }) {
         aria-busy={cargando}
       >
         {usuarios.length === 0 ? (
-          <p className="px-6 py-10 text-center text-[16px] text-ink-soft">
+          <Vacio cargando={!datos && cargando}>
             {!datos
               ? cargando
                 ? 'Buscando usuarios…'
                 : 'No se pudieron cargar los usuarios.'
               : 'No hay usuarios que coincidan con la búsqueda.'}
-          </p>
+          </Vacio>
         ) : (
           <table className="w-full text-left text-[16px] text-ink">
             <thead>

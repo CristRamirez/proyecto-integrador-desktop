@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { listarCuotas } from '../../api/cobranzas'
-import { Avatar, Aviso, Boton, Buscador, Filtro, Paginado, claseCabecera, claseFila } from '../../components/ui'
+import { Avatar, Aviso, Boton, Buscador, Filtro, Paginado, Vacio, claseCabecera, claseFila } from '../../components/ui'
 import { fecha, moneda, monedaCorta, periodo, periodosRecientes } from '../internos/formato'
 import { estaVencida, tieneSaldo } from './cuota'
 import EstadoCuota from './EstadoCuota'
@@ -226,7 +226,7 @@ export default function CuotasDelPeriodo({ filtros, onFiltros, onAbrir, onPagar,
         aria-busy={cargando}
       >
         {cuotas.length === 0 ? (
-          <p className="px-6 py-10 text-center text-[16px] text-ink-soft">
+          <Vacio cargando={!datos && cargando}>
             {!datos
               ? cargando
                 ? 'Buscando cuotas…'
@@ -234,7 +234,7 @@ export default function CuotasDelPeriodo({ filtros, onFiltros, onAbrir, onPagar,
               : datos.resumen?.cuotas === 0
                 ? `Todavía no se generaron las cuotas de ${periodo(periodoElegido)}.`
                 : 'No hay cuotas que coincidan con la búsqueda.'}
-          </p>
+          </Vacio>
         ) : (
           <table className="w-full text-left text-[16px] text-ink">
             <thead>

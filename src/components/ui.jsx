@@ -43,6 +43,7 @@ const VARIANTES = {
   secundario: 'border border-line-strong bg-surface text-ink hover:bg-accent-soft',
   sutil: 'text-ink-soft hover:bg-accent-soft hover:text-ink',
   peligro: 'border border-danger/40 bg-surface text-danger hover:bg-danger-soft',
+  peligroLleno: 'bg-danger text-white hover:bg-danger/90',
 }
 
 export function Boton({ icono, variante = 'primario', chico = false, children, className = '', ...props }) {
@@ -155,9 +156,35 @@ export function Campo({ etiqueta, obligatorio, error, className = '', children }
   )
 }
 
-export function Seccion({ titulo, children }) {
+export function Cargando({ className = 'py-16', children }) {
   return (
-    <section className="border border-line bg-surface px-7 py-6 rounded-sm">
+    <div className={`flex items-center justify-center gap-3 text-[15px] text-ink-soft ${className}`} aria-busy="true">
+      <span className="h-5 w-5 animate-spin rounded-full border-2 border-line-strong border-t-ink" aria-hidden="true" />
+      {children}
+    </div>
+  )
+}
+
+export function Vacio({ cargando = false, children }) {
+  return (
+    <div className="flex flex-col items-center gap-3 px-6 py-12 text-center" aria-busy={cargando || undefined}>
+      {cargando ? (
+        <span className="h-6 w-6 animate-spin rounded-full border-2 border-line-strong border-t-ink" aria-hidden="true" />
+      ) : (
+        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-accent-soft text-ink-soft" aria-hidden="true">
+          <Icono nombre="buscar" className="h-5 w-5" />
+        </span>
+      )}
+      <p className="text-[16px] text-ink-soft">{children}</p>
+    </div>
+  )
+}
+
+export function Seccion({ titulo, tono, children }) {
+  return (
+    <section
+      className={`rounded-sm border bg-surface px-7 py-6 ${tono === 'peligro' ? 'border-danger/30' : 'border-line'}`}
+    >
       <h2 className="mb-5 font-serif text-[20px] font-semibold text-ink">{titulo}</h2>
       {children}
     </section>

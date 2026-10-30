@@ -59,7 +59,7 @@ export default function BajaInterno({ interno, onCancelar, onBaja }) {
 
   return (
     <form onSubmit={confirmar} noValidate>
-      <Seccion titulo="Dar de baja">
+      <Seccion titulo="Dar de baja" tono="peligro">
         <p className="-mt-3 mb-5 text-[15px] text-ink-soft">
           El interno pasa a egresado y deja de figurar entre los activos. No se borra: la ficha sigue disponible.
         </p>
@@ -103,7 +103,7 @@ export default function BajaInterno({ interno, onCancelar, onBaja }) {
           <Boton variante="secundario" onClick={onCancelar} disabled={guardando}>
             Cancelar
           </Boton>
-          <Boton type="submit" icono="check" disabled={guardando}>
+          <Boton type="submit" variante="peligroLleno" icono="check" disabled={guardando}>
             {guardando ? 'Registrando…' : 'Confirmar baja'}
           </Boton>
         </div>

@@ -23,7 +23,7 @@ export default function Configuracion({ modulos = [], usuario }) {
 
   if (!pestana) {
     return (
-      <p className="py-16 text-center font-mono text-[13px] tracking-[0.18em] text-ink-soft uppercase">
+      <p className="py-16 text-center text-[16px] text-ink-soft">
         Tu rol no tiene opciones de configuración
       </p>
     )

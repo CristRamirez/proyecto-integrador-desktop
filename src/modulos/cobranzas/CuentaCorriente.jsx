@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { obtenerCuentaCorriente } from '../../api/cobranzas'
-import { Aviso, Boton, Seccion } from '../../components/ui'
+import { Aviso, Boton, Cargando, Seccion } from '../../components/ui'
 import { fecha, moneda, periodo } from '../internos/formato'
 import { estaVencida, tieneSaldo } from './cuota'
 import EstadoCuota from './EstadoCuota'
@@ -149,9 +149,7 @@ export default function CuentaCorriente({ id, cuotaInicial, onVolver, etiquetaVo
 
   if (!datos) {
     return (
-      <p className="py-16 text-center font-mono text-[13px] tracking-[0.18em] text-ink-soft uppercase" aria-busy="true">
-        Cargando cuenta corriente…
-      </p>
+      <Cargando>Cargando cuenta corriente…</Cargando>
     )
   }
 

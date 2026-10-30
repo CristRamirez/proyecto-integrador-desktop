@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { obtenerInterno } from '../../api/internos'
-import { Avatar, Aviso, Boton, Dato, Estado, Marca, Seccion } from '../../components/ui'
+import { Avatar, Aviso, Boton, Cargando, Dato, Estado, Marca, Seccion } from '../../components/ui'
 import BajaInterno from './BajaInterno'
 import ReingresoInterno from './ReingresoInterno'
 import { edad, fecha, fechaHora, legajoActual } from './formato'
@@ -138,9 +138,7 @@ export default function FichaInterno({ id, inicial, guardado, onVolver, onEditar
 
   if (!interno) {
     return (
-      <p className="py-16 text-center font-mono text-[13px] tracking-[0.18em] text-ink-soft uppercase" aria-busy="true">
-        Cargando ficha…
-      </p>
+      <Cargando>Cargando ficha…</Cargando>
     )
   }
 

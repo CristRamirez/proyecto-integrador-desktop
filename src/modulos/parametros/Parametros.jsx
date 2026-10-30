@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { listarHistoricoParametros, obtenerParametros } from '../../api/parametros'
-import { Aviso, Boton, Dato, Marca, Seccion } from '../../components/ui'
+import { Aviso, Boton, Cargando, Dato, Marca, Seccion } from '../../components/ui'
 import { fecha, moneda } from '../internos/formato'
 import FormularioParametros from './FormularioParametros'
 
@@ -83,9 +83,7 @@ export default function Parametros() {
 
   if (!datos) {
     return (
-      <p className="py-16 text-center font-mono text-[13px] tracking-[0.18em] text-ink-soft uppercase" aria-busy="true">
-        Cargando parámetros…
-      </p>
+      <Cargando>Cargando parámetros…</Cargando>
     )
   }
 

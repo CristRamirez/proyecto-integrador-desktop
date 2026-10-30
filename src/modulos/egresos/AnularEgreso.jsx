@@ -51,7 +51,7 @@ export default function AnularEgreso({ egreso, onCancelar, onAnulado, onDesactua
 
   return (
     <form onSubmit={confirmar} noValidate>
-      <Seccion titulo="Anular egreso">
+      <Seccion titulo="Anular egreso" tono="peligro">
         <p className="-mt-3 mb-5 text-[15px] text-ink-soft">
           <span className="font-semibold text-ink">{egreso.concepto}</span> · {nombreCategoria(egreso.categoria)} ·{' '}
           {fecha(egreso.fecha)} · <span className="font-mono font-semibold text-ink">{moneda(egreso.monto)}</span>
@@ -89,7 +89,7 @@ export default function AnularEgreso({ egreso, onCancelar, onAnulado, onDesactua
           <Boton variante="secundario" onClick={onCancelar} disabled={guardando}>
             Cancelar
           </Boton>
-          <Boton type="submit" icono="cruz" disabled={guardando}>
+          <Boton type="submit" variante="peligroLleno" icono="cruz" disabled={guardando}>
             {guardando ? 'Anulando…' : 'Confirmar anulación'}
           </Boton>
         </div>

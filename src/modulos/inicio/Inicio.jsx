@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { listarCuotas } from '../../api/cobranzas'
 import { buscarInternos } from '../../api/internos'
-import { Aviso, Boton, Marca } from '../../components/ui'
+import { Avatar, Aviso, Boton, Cargando, Icono, Marca, claseCabecera, claseFila } from '../../components/ui'
 import { Indicadores } from '../cobranzas/CuotasDelPeriodo'
 import EstadoCuota from '../cobranzas/EstadoCuota'
 import { fecha, moneda, periodo, periodoActual } from '../internos/formato'
@@ -22,20 +22,23 @@ async function contarInternos(filtros) {
   return paginacion?.total ?? 0
 }
 
-function Cargando({ children }) {
-  return <p className="font-mono text-[13px] tracking-[0.18em] text-ink-soft uppercase">{children}</p>
-}
-
-function Cifra({ etiqueta, valor, punto }) {
+function Cifra({ etiqueta, valor, detalle, punto }) {
   return (
     <div className="rounded-sm border border-line bg-surface px-5 py-4">
       <p className="flex items-center gap-2 font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">
         <span className={`h-2 w-2 rounded-full ${punto}`} aria-hidden="true" />
         {etiqueta}
       </p>
-      <p className="mt-2 font-serif text-[28px] font-semibold text-ink">{valor}</p>
+      <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-3">
+        <p className="font-serif text-[28px] font-semibold text-ink">{valor}</p>
+        {detalle && <p className="text-[14px] text-ink-soft">{detalle}</p>}
+      </div>
     </div>
   )
+}
+
+function porcentaje(parte, total) {
+  return total > 0 ? Math.round((parte / total) * 100) : 0
 }
 
 function BloqueInternos() {
@@ -59,14 +62,19 @@ function BloqueInternos() {
     <section>
       <h2 className={`mb-3 ${claseTitulo}`}>Internos</h2>
       {!datos ? (
-        <Cargando>Cargando internos…</Cargando>
+        <Cargando className="py-8">Cargando internos…</Cargando>
       ) : datos.error ? (
         <Aviso>{datos.error}</Aviso>
       ) : (
         <div className="grid grid-cols-3 gap-4">
-          <Cifra etiqueta="Activos" valor={datos.activos} punto="bg-ok" />
-          <Cifra etiqueta="Judicializados" valor={datos.judicializados} punto="bg-danger" />
-          <Cifra etiqueta="Egresados" valor={datos.egresados} punto="bg-accent" />
+          <Cifra etiqueta="Activos" valor={datos.activos} detalle="en el padrón" punto="bg-ok" />
+          <Cifra
+            etiqueta="Judicializados"
+            valor={datos.judicializados}
+            detalle={`${porcentaje(datos.judicializados, datos.activos)}% de los activos`}
+            punto="bg-danger"
+          />
+          <Cifra etiqueta="Egresados" valor={datos.egresados} detalle="con historial" punto="bg-accent" />
         </div>
       )}
     </section>
@@ -79,12 +87,13 @@ function CuotasVencidas({ cuotas, total, sinGenerar, actual, onIr }) {
       <div className="mb-3 flex items-end justify-between gap-4">
         <h2 className={claseTitulo}>Cuotas vencidas para reclamar</h2>
         {total > 0 && (
-          <Boton variante="secundario" onClick={() => onIr('cobranzas', { tipo: 'vencidas' })}>
+          <Boton variante="secundario" chico onClick={() => onIr('cobranzas', { tipo: 'vencidas' })}>
             Ver las {total} en Cobranzas
+            <Icono nombre="derecha" className="h-4 w-4" />
           </Boton>
         )}
       </div>
-      <div className="rounded-sm border border-line bg-surface">
+      <div className="overflow-hidden rounded-sm border border-line bg-surface">
         {cuotas.length === 0 ? (
           <p className="px-6 py-8 text-center text-[16px] text-ink-soft">
             {sinGenerar ? `Todavía no se generaron las cuotas de ${periodo(actual)}.` : 'No hay cuotas vencidas este mes.'}
@@ -92,7 +101,7 @@ function CuotasVencidas({ cuotas, total, sinGenerar, actual, onIr }) {
         ) : (
           <table className="w-full text-left text-[16px] text-ink">
             <thead>
-              <tr className="border-b border-line font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">
+              <tr className={claseCabecera}>
                 <th className="px-4 py-3 font-normal">Interno</th>
                 <th className="px-4 py-3 font-normal">Venció</th>
                 <th className="px-4 py-3 text-right font-normal">Saldo</th>
@@ -102,12 +111,17 @@ function CuotasVencidas({ cuotas, total, sinGenerar, actual, onIr }) {
             </thead>
             <tbody>
               {cuotas.map((c) => (
-                <tr key={c.id} className="border-b border-line last:border-b-0">
+                <tr key={c.id} className={claseFila}>
                   <td className="px-4 py-3">
-                    <p className="font-semibold">
-                      {c.interno.apellido}, {c.interno.nombre}
-                    </p>
-                    <p className="font-mono text-[12px] text-ink-soft">{c.interno.legajo ?? 'Sin legajo'}</p>
+                    <div className="flex items-center gap-3">
+                      <Avatar apellido={c.interno.apellido} nombre={c.interno.nombre} />
+                      <div>
+                        <p className="font-semibold">
+                          {c.interno.apellido}, {c.interno.nombre}
+                        </p>
+                        <p className="font-mono text-[12px] text-ink-soft">{c.interno.legajo ?? 'Sin legajo'}</p>
+                      </div>
+                    </div>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-danger">{fecha(c.fecha_vencimiento)}</td>
                   <td className="px-4 py-3 text-right font-mono text-[15px] whitespace-nowrap">
@@ -119,7 +133,7 @@ function CuotasVencidas({ cuotas, total, sinGenerar, actual, onIr }) {
                   <td className="px-4 py-3 text-right">
                     <Boton
                       variante="secundario"
-                      className="whitespace-nowrap"
+                      chico
                       onClick={() => onIr('cobranzas', { tipo: 'cuenta', id: c.interno.id, cuota: c.id })}
                     >
                       Registrar pago
@@ -163,7 +177,7 @@ function BloqueCobranzas({ onIr }) {
       <section>
         <h2 className={`mb-3 ${claseTitulo}`}>Cobranzas de {periodo(actual)}</h2>
         {!datos ? (
-          <Cargando>Cargando cobranzas…</Cargando>
+          <Cargando className="py-8">Cargando cobranzas…</Cargando>
         ) : datos.enProgreso ? (
           <div className="rounded-sm border border-line bg-surface px-7 py-6">
             <Marca>En progreso</Marca>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { listarAuditoria, opcionesDeAuditoria } from '../../api/auditoria'
-import { Aviso, Boton, Filtro, FiltroFecha, Paginado, claseCabecera } from '../../components/ui'
+import { Aviso, Boton, Filtro, FiltroFecha, Paginado, Vacio, claseCabecera } from '../../components/ui'
 import { fechaHoraDesdeUtc, hoy, moneda } from '../internos/formato'
 
 const POR_PAGINA = 50
@@ -227,7 +227,7 @@ export default function Auditoria() {
         aria-busy={cargando}
       >
         {registros.length === 0 ? (
-          <p className="px-6 py-10 text-center text-[16px] text-ink-soft">
+          <Vacio cargando={!datos && cargando}>
             {!datos
               ? cargando
                 ? 'Buscando registros…'
@@ -235,7 +235,7 @@ export default function Auditoria() {
               : conFiltros
                 ? 'No hay registros que coincidan con los filtros.'
                 : 'Todavía no hay registros.'}
-          </p>
+          </Vacio>
         ) : (
           <table className="w-full text-left text-[16px] text-ink">
             <thead>

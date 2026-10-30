@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { listarCuotas } from '../../api/cobranzas'
 import { listarEgresos } from '../../api/egresos'
-import { Aviso, Boton, Estado, Filtro, Marca, Paginado, claseCabecera } from '../../components/ui'
+import { Aviso, Boton, Estado, Filtro, Marca, Paginado, Vacio, claseCabecera } from '../../components/ui'
 import { Indicador } from '../cobranzas/CuotasDelPeriodo'
 import { fecha, fechaHoraDesdeUtc, moneda, monedaCorta, periodo, periodoActual, periodosRecientes } from '../internos/formato'
 import AnularEgreso from './AnularEgreso'
@@ -325,7 +325,7 @@ export default function Egresos() {
         aria-busy={cargando}
       >
         {egresos.length === 0 ? (
-          <p className="px-6 py-10 text-center text-[16px] text-ink-soft">
+          <Vacio cargando={!datos && cargando}>
             {!datos
               ? cargando
                 ? 'Buscando egresos…'
@@ -333,7 +333,7 @@ export default function Egresos() {
               : categoria
                 ? 'No hay egresos de esa categoría en el período.'
                 : `No hay egresos registrados en ${periodo(periodoElegido)}.`}
-          </p>
+          </Vacio>
         ) : (
           <table className="w-full text-left text-[16px] text-ink">
             <thead>
