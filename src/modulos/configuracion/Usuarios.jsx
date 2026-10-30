@@ -36,7 +36,7 @@ function FilaUsuario({ usuario, esPropio, onAbrir }) {
       <td className="px-4 py-3">
         <div className="flex items-center gap-3">
           <Avatar nombreCompleto={usuario.nombre_completo} />
-          <div>
+          <div className="whitespace-nowrap">
             <button
               type="button"
               onClick={(e) => {
@@ -132,12 +132,11 @@ export default function Usuarios({ usuario: actual }) {
 
   if (vista.tipo === 'alta') {
     return (
-      <div ref={raiz} className="mx-auto max-w-5xl px-8 py-8">
-        <Encabezado titulo="Nuevo usuario" subtitulo="Con el nombre de usuario y la contraseña inicia sesión.">
-          <Boton icono="volver" variante="sutil" onClick={() => volverALista()}>
-            Volver a usuarios
-          </Boton>
-        </Encabezado>
+      <div ref={raiz} className="mx-auto max-w-5xl px-8 py-6">
+        <Boton icono="volver" variante="sutil" chico className="mb-3 -ml-3.5" onClick={() => volverALista()}>
+          Volver a usuarios
+        </Boton>
+        <Encabezado titulo="Nuevo usuario" subtitulo="Con el nombre de usuario y la contraseña inicia sesión." />
         <FormularioUsuario
           roles={roles}
           onCancelar={() => volverALista()}
@@ -152,12 +151,11 @@ export default function Usuarios({ usuario: actual }) {
   if (vista.tipo === 'editar') {
     const { usuario } = vista
     return (
-      <div ref={raiz} className="mx-auto max-w-5xl px-8 py-8">
-        <Encabezado titulo={usuario.nombre_completo} subtitulo={`${usuario.nombre_usuario} · ${etiquetaRol(usuario.rol)}`}>
-          <Boton icono="volver" variante="sutil" onClick={() => volverALista()}>
-            Volver a usuarios
-          </Boton>
-        </Encabezado>
+      <div ref={raiz} className="mx-auto max-w-5xl px-8 py-6">
+        <Boton icono="volver" variante="sutil" chico className="mb-3 -ml-3.5" onClick={() => volverALista()}>
+          Volver a usuarios
+        </Boton>
+        <Encabezado titulo={usuario.nombre_completo} subtitulo={`${usuario.nombre_usuario} · ${etiquetaRol(usuario.rol)}`} />
         {aviso && (
           <div className="mb-6">
             <Aviso tono="ok">{aviso}</Aviso>

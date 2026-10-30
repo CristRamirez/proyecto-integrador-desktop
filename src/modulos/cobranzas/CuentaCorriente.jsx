@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { obtenerCuentaCorriente } from '../../api/cobranzas'
-import { Aviso, Boton, Dato, Seccion } from '../../components/ui'
+import { Aviso, Boton, Seccion } from '../../components/ui'
 import { fecha, moneda, periodo } from '../internos/formato'
 import { estaVencida, tieneSaldo } from './cuota'
 import EstadoCuota from './EstadoCuota'
@@ -15,11 +15,20 @@ function totalAdeudado(cuotas) {
   return cuotas.filter((c) => c.estado !== 'anulada').reduce((total, c) => centavos(total + c.saldo_pendiente), 0)
 }
 
+function Resumen({ etiqueta, peligro = false, children }) {
+  return (
+    <div className="rounded-sm border border-line bg-surface px-5 py-4">
+      <p className="font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">{etiqueta}</p>
+      <p className={`mt-2 font-serif text-[28px] font-semibold ${peligro ? 'text-danger' : 'text-ink'}`}>{children}</p>
+    </div>
+  )
+}
+
 function Pagos({ pagos }) {
   return (
     <table className="w-full text-left text-[15px] text-ink">
       <thead>
-        <tr className="border-b border-line font-mono text-[11px] tracking-[0.14em] text-ink-soft uppercase">
+        <tr className="border-b border-line font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">
           <th className="py-2 pr-4 font-normal">Fecha</th>
           <th className="py-2 pr-4 font-normal">Medio</th>
           <th className="py-2 pr-4 font-normal">Comprobante</th>
@@ -30,7 +39,7 @@ function Pagos({ pagos }) {
       </thead>
       <tbody>
         {pagos.map((p) => (
-          <tr key={p.id} className="border-b border-line last:border-b-0">
+          <tr key={p.id} className="border-b border-line-soft last:border-b-0">
             <td className="py-2 pr-4">{fecha(p.fecha_pago)}</td>
             <td className="py-2 pr-4 capitalize">{p.medio_pago}</td>
             <td className="py-2 pr-4 font-mono text-[14px] whitespace-nowrap select-text">{p.numero_comprobante ?? '—'}</td>
@@ -152,19 +161,18 @@ export default function CuentaCorriente({ id, cuotaInicial, onVolver, etiquetaVo
   const hayAnuladas = cuotas.some((c) => c.estado === 'anulada')
 
   return (
-    <div className="mx-auto max-w-5xl px-8 py-8">
-      <div ref={arriba} className="mb-6 flex items-start justify-between gap-4">
-        <div>
-          <p className="font-mono text-[13px] tracking-[0.1em] text-ink-soft">
-            Cuenta corriente · DNI <span className="select-text">{interno.dni}</span>
-          </p>
-          <h1 className="mt-1 font-serif text-[28px] font-semibold text-ink">
-            {interno.apellido}, {interno.nombre}
-          </h1>
-        </div>
-        <Boton icono="volver" variante="sutil" onClick={onVolver}>
-          {etiquetaVolver}
-        </Boton>
+    <div className="mx-auto max-w-5xl px-8 py-6">
+      <Boton icono="volver" variante="sutil" chico className="-ml-3.5" onClick={onVolver}>
+        {etiquetaVolver}
+      </Boton>
+      <div ref={arriba} className="mt-3 mb-6">
+        <p className="font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">Cuenta corriente</p>
+        <h1 className="mt-1 font-serif text-[28px] font-semibold text-ink">
+          {interno.apellido}, {interno.nombre}
+        </h1>
+        <p className="mt-1 text-[15px] text-ink-soft">
+          DNI <span className="font-mono select-text">{interno.dni}</span>
+        </p>
       </div>
 
       {aviso && (
@@ -174,13 +182,15 @@ export default function CuentaCorriente({ id, cuotaInicial, onVolver, etiquetaVo
       )}
 
       <div className="space-y-6">
-        <dl className="grid grid-cols-3 gap-x-6 rounded-sm border border-line bg-surface px-7 py-6">
-          <Dato etiqueta="Total adeudado">
-            <span className="font-mono text-[26px] font-semibold">{moneda(total_adeudado)}</span>
-          </Dato>
-          <Dato etiqueta="Cuotas con saldo">{conSaldo.length}</Dato>
-          <Dato etiqueta="Vencidas impagas">{vencidas.length}</Dato>
-        </dl>
+        <div className="grid grid-cols-3 gap-4">
+          <Resumen etiqueta="Total adeudado" peligro={total_adeudado > 0}>
+            {moneda(total_adeudado)}
+          </Resumen>
+          <Resumen etiqueta="Cuotas con saldo">{conSaldo.length}</Resumen>
+          <Resumen etiqueta="Vencidas impagas" peligro={vencidas.length > 0}>
+            {vencidas.length}
+          </Resumen>
+        </div>
 
         <Seccion titulo="Cuotas">
           {cuotas.length === 0 ? (
@@ -211,7 +221,7 @@ export default function CuentaCorriente({ id, cuotaInicial, onVolver, etiquetaVo
                     return (
                       <Fragment key={c.id}>
                         <tr
-                          className={`border-b border-line ${anulada ? 'text-ink-soft' : ''} ${pagando?.id === c.id ? 'bg-accent-soft' : ''}`}
+                          className={`border-b border-line-soft ${anulada ? 'text-ink-soft' : ''} ${pagando?.id === c.id ? 'bg-accent-soft/60' : ''}`}
                         >
                           <td className="py-3 pr-4 font-semibold whitespace-nowrap capitalize">{periodo(c.periodo)}</td>
                           <td className={`py-3 pr-4 ${vencida ? 'text-danger' : ''}`}>{fecha(c.fecha_vencimiento)}</td>
@@ -246,7 +256,7 @@ export default function CuentaCorriente({ id, cuotaInicial, onVolver, etiquetaVo
                             {tieneSaldo(c) && (
                               <Boton
                                 variante="secundario"
-                                className="whitespace-nowrap"
+                                chico
                                 onClick={() => abrirPago(c)}
                                 disabled={pagando?.id === c.id}
                               >
@@ -256,7 +266,7 @@ export default function CuentaCorriente({ id, cuotaInicial, onVolver, etiquetaVo
                           </td>
                         </tr>
                         {abierta && (
-                          <tr className="border-b border-line bg-paper">
+                          <tr className="border-b border-line-soft bg-paper">
                             <td colSpan={7} className="px-4 py-3">
                               <Pagos pagos={c.pagos} />
                             </td>

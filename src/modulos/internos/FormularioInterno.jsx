@@ -227,17 +227,16 @@ export default function FormularioInterno({ interno, onCancelar, onGuardado, onA
   const maximo = hoy()
 
   return (
-    <form onSubmit={guardar} noValidate className="mx-auto max-w-4xl px-8 py-8">
-      <div ref={arriba} className="mb-6 flex items-center justify-between gap-4">
-        <div>
-          <h1 className="font-serif text-[28px] font-semibold text-ink">{editando ? 'Modificar datos' : 'Alta de interno'}</h1>
-          <p className="mt-1 text-[15px] text-ink-soft">
-            {editando && `${interno.apellido}, ${interno.nombre}. `}Los campos con * son obligatorios.
-          </p>
-        </div>
-        <Boton icono="volver" variante="sutil" onClick={onCancelar} disabled={guardando}>
-          Volver
-        </Boton>
+    <form onSubmit={guardar} noValidate className="mx-auto max-w-4xl px-8 pt-6">
+      <Boton icono="volver" variante="sutil" chico className="-ml-3.5" onClick={onCancelar} disabled={guardando}>
+        Volver
+      </Boton>
+      <div ref={arriba} className="mt-3 mb-6">
+        <h1 className="font-serif text-[28px] font-semibold text-ink">{editando ? 'Modificar datos' : 'Alta de interno'}</h1>
+        <p className="mt-1 text-[15px] text-ink-soft">
+          {editando && `${interno.apellido}, ${interno.nombre}. `}Los campos con <span className="text-danger">*</span> son
+          obligatorios.
+        </p>
       </div>
 
       {hayErrores && (
@@ -316,7 +315,7 @@ export default function FormularioInterno({ interno, onCancelar, onGuardado, onA
           </div>
 
           {egresado && (
-            <div className="mt-5 flex items-center justify-between gap-4 border-l-4 border-ink bg-accent-soft px-4 py-3">
+            <div className="mt-5 flex items-center justify-between gap-4 rounded-sm border border-line bg-head px-4 py-3">
               <p className="text-[16px] text-ink">
                 <span className="font-semibold">
                   {egresado.interno.apellido}, {egresado.interno.nombre}
@@ -395,13 +394,13 @@ export default function FormularioInterno({ interno, onCancelar, onGuardado, onA
             {form.contactos.map((c, i) => {
               const e = errores.contactos?.[i] ?? {}
               return (
-                <li key={c.clave} className="border-t border-line pt-5 first:border-t-0 first:pt-0">
+                <li key={c.clave} className="border-t border-line-soft pt-5 first:border-t-0 first:pt-0">
                   <div className="mb-3 flex items-center justify-between">
                     <p className="font-semibold text-ink">Contacto {i + 1}</p>
                     <Boton
                       icono="cruz"
                       variante="sutil"
-                      className="h-10 px-3 text-[15px]"
+                      chico
                       onClick={() => quitarContacto(i)}
                       disabled={form.contactos.length <= MINIMO_CONTACTOS}
                       title={form.contactos.length <= MINIMO_CONTACTOS ? `Tiene que haber al menos ${MINIMO_CONTACTOS}` : undefined}
@@ -456,7 +455,7 @@ export default function FormularioInterno({ interno, onCancelar, onGuardado, onA
         </Seccion>
       </div>
 
-      <div className="mt-8 flex justify-end gap-3 border-t border-line pt-6">
+      <div className="sticky bottom-0 -mx-8 mt-8 flex justify-end gap-3 border-t border-line bg-paper/95 px-8 py-4 backdrop-blur">
         <Boton variante="secundario" onClick={onCancelar} disabled={guardando}>
           Cancelar
         </Boton>

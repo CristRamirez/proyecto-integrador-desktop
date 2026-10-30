@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { obtenerInterno } from '../../api/internos'
-import { Aviso, Boton, Dato, Marca, Seccion } from '../../components/ui'
+import { Avatar, Aviso, Boton, Dato, Estado, Marca, Seccion } from '../../components/ui'
 import BajaInterno from './BajaInterno'
 import ReingresoInterno from './ReingresoInterno'
 import { edad, fecha, fechaHora, legajoActual } from './formato'
@@ -20,7 +20,7 @@ function Contactos({ contactos }) {
       </thead>
       <tbody>
         {contactos.map((c) => (
-          <tr key={c.id} className="border-b border-line last:border-b-0">
+          <tr key={c.id} className="border-b border-line-soft last:border-b-0">
             <td className="py-3 pr-5 font-semibold">{c.nombre}</td>
             <td className="py-3 pr-5">{c.parentesco ?? '—'}</td>
             <td className="py-3 pr-5 font-mono select-text">{c.telefono ?? '—'}</td>
@@ -49,7 +49,7 @@ function Legajos({ legajos }) {
       </thead>
       <tbody>
         {ordenado.map((l) => (
-          <tr key={l.id} className="border-b border-line last:border-b-0">
+          <tr key={l.id} className="border-b border-line-soft last:border-b-0">
             <td className="py-3 pr-5 font-mono font-semibold select-text">{l.numero}</td>
             <td className="py-3 pr-5">{fecha(l.fecha_ingreso ?? l.fecha_apertura)}</td>
             <td className="py-3 pr-5">{l.fecha_egreso ? fecha(l.fecha_egreso) : <Marca>Actual</Marca>}</td>
@@ -148,31 +148,42 @@ export default function FichaInterno({ id, inicial, guardado, onVolver, onEditar
   const años = edad(interno.fecha_nacimiento)
 
   return (
-    <div className="mx-auto max-w-4xl px-8 py-8">
-      <div ref={arriba} className="mb-6 flex items-start justify-between gap-4">
-        <div>
-          <p className="font-mono text-[13px] tracking-[0.1em] text-ink-soft select-text">{legajo?.numero ?? 'Sin legajo'}</p>
-          <h1 className="mt-1 font-serif text-[28px] font-semibold text-ink">
-            {interno.apellido}, {interno.nombre}
-          </h1>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <Marca tono={interno.estado === 'activo' ? 'ok' : 'neutro'}>{interno.estado}</Marca>
-            {!!interno.judicializado && <Marca tono="peligro">Judicial</Marca>}
-            {interno.tiene_deuda && <Marca tono="aviso">Deuda</Marca>}
+    <div className="mx-auto max-w-5xl px-8 py-6">
+      <Boton icono="volver" variante="sutil" chico className="-ml-3.5" onClick={onVolver}>
+        Volver al padrón
+      </Boton>
+
+      <div
+        ref={arriba}
+        className="mt-3 mb-6 flex flex-wrap items-center justify-between gap-5 rounded-sm border border-line bg-surface px-7 py-6"
+      >
+        <div className="flex min-w-0 items-center gap-5">
+          <Avatar grande apellido={interno.apellido} nombre={interno.nombre} />
+          <div className="min-w-0">
+            <h1 className="font-serif text-[28px] leading-tight font-semibold text-ink">
+              {interno.apellido}, {interno.nombre}
+            </h1>
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-[15px] text-ink-soft">
+              <Estado tono={interno.estado === 'activo' ? 'ok' : 'neutro'}>
+                <span className="capitalize">{interno.estado}</span>
+              </Estado>
+              {!!interno.judicializado && <Marca tono="peligro">Judicial</Marca>}
+              {interno.tiene_deuda && <Marca tono="aviso">Deuda</Marca>}
+              <span className="font-mono text-[14px] select-text">{legajo?.numero ?? 'Sin legajo'}</span>
+              {años !== null && <span>{años} años</span>}
+            </div>
+            {interno.modificado_en && (
+              <p className="mt-2 text-[13px] text-ink-faint">Última modificación: {fechaHora(interno.modificado_en)}</p>
+            )}
           </div>
-          {interno.modificado_en && (
-            <p className="mt-2 text-[14px] text-ink-soft">Última modificación: {fechaHora(interno.modificado_en)}</p>
-          )}
         </div>
         <div className="flex shrink-0 gap-3">
-          <Boton icono="volver" variante="sutil" onClick={onVolver}>
-            Volver
-          </Boton>
-          <Boton variante="secundario" onClick={() => onEditar(interno)}>
+          <Boton variante="secundario" icono="lapiz" onClick={() => onEditar(interno)}>
             Modificar datos
           </Boton>
           <Boton
             variante="secundario"
+            icono="billete"
             onClick={onCuentaCorriente}
             disabled={!onCuentaCorriente}
             title={onCuentaCorriente ? undefined : 'Tu rol no tiene acceso a Cobranzas'}
@@ -254,7 +265,7 @@ export default function FichaInterno({ id, inicial, guardado, onVolver, onEditar
           ) : (
             <div className="flex justify-end">
               <Boton
-                variante="sutil"
+                variante="peligro"
                 onClick={() => {
                   setAviso(null)
                   setDandoDeBaja(true)

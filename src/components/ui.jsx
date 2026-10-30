@@ -18,6 +18,7 @@ const ICONOS = {
   flecha: 'M5 12h14M13 6l6 6-6 6',
   buscar: 'M11 18a7 7 0 100-14 7 7 0 000 14zM20 20l-3.5-3.5',
   derecha: 'M9 6l6 6-6 6',
+  lapiz: 'M4 20h4L19 9l-4-4L4 16v4z',
 }
 
 export function Icono({ nombre, className = 'h-5 w-5' }) {
@@ -41,6 +42,7 @@ const VARIANTES = {
   primario: 'bg-primary text-white hover:bg-primary-hover',
   secundario: 'border border-line-strong bg-surface text-ink hover:bg-accent-soft',
   sutil: 'text-ink-soft hover:bg-accent-soft hover:text-ink',
+  peligro: 'border border-danger/40 bg-surface text-danger hover:bg-danger-soft',
 }
 
 export function Boton({ icono, variante = 'primario', chico = false, children, className = '', ...props }) {
@@ -125,11 +127,13 @@ function iniciales({ apellido, nombre, nombreCompleto }) {
   return `${apellido?.[0] ?? ''}${nombre?.[0] ?? ''}`.toUpperCase()
 }
 
-export function Avatar(props) {
+export function Avatar({ grande = false, ...props }) {
   return (
     <span
       aria-hidden="true"
-      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft font-mono text-[12px] text-ink-soft"
+      className={`flex shrink-0 items-center justify-center rounded-full bg-accent-soft font-mono text-ink-soft ${
+        grande ? 'h-14 w-14 text-[16px]' : 'h-9 w-9 text-[12px]'
+      }`}
     >
       {iniciales(props)}
     </span>
