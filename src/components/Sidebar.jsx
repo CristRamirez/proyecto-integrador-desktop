@@ -6,6 +6,7 @@ const ICONO_MODULO = {
   internos: 'persona',
   cobranzas: 'billete',
   egresos: 'recibo',
+  reportes: 'barras',
   configuracion: 'ajustes',
 }
 
