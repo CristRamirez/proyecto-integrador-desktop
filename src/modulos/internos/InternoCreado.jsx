@@ -19,7 +19,7 @@ export default function InternoCreado({ interno, onOtro, onVolver, onVerFicha })
       </div>
 
       <div className="mt-6 border border-line bg-surface px-7 py-6 rounded-sm">
-        <p className="font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">Legajo asignado</p>
+        <p className="text-[13px] font-medium text-ink-soft">Legajo asignado</p>
         <p className="mt-1 font-mono text-[28px] font-medium text-ink select-text">{legajo}</p>
 
         <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-line pt-6">

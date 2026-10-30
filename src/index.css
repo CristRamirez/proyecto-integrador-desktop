@@ -11,28 +11,28 @@
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
   --font-serif: "IBM Plex Serif", ui-serif, Georgia, serif;
 
-  --color-paper: #f2f1ec;
-  --color-surface: #fbfaf7;
-  --color-head: #f5f3ee;
-  --color-line: #d5d0c6;
-  --color-line-soft: #e4e0d8;
-  --color-line-strong: #b2ab9d;
+  --color-paper: #f4f1ea;
+  --color-surface: #fffdf9;
+  --color-head: #f8f4ec;
+  --color-line: #e3dbcd;
+  --color-line-soft: #efe9de;
+  --color-line-strong: #c4b9a6;
 
-  --color-ink: #1a1815;
-  --color-ink-soft: #5b564d;
-  --color-ink-faint: #736d62;
+  --color-ink: #1f1b16;
+  --color-ink-soft: #5f574b;
+  --color-ink-faint: #756b5d;
 
   --color-rail: #2b2824;
-  --color-rail-active: #3b3835;
-  --color-rail-mark: #d9c9a8;
   --color-rail-soft: #b3aca0;
   --color-rail-line: #46423b;
 
-  --color-primary: #33302b;
-  --color-primary-hover: #4a463f;
+  --color-primary: #b4532f;
+  --color-primary-hover: #9a4425;
+  --color-primary-soft: #f6e3da;
+  --color-primary-ink: #8f3a1f;
 
-  --color-accent: #6d6459;
-  --color-accent-soft: #e4e0d8;
+  --color-accent: #7a6f60;
+  --color-accent-soft: #ece5d8;
 
   /* Estados de cobranza: al día, por vencer y vencido */
   --color-ok: #4f6b3a;
@@ -40,12 +40,12 @@
   --color-ok-soft: #e1e7d6;
   --color-warn: #9a7420;
   --color-warn-ink: #7a5a12;
-  --color-warn-soft: #f1e7cc;
-  --color-danger: #8a3324;
-  --color-danger-soft: #f3e3dc;
+  --color-warn-soft: #f3e6c9;
+  --color-danger: #b42318;
+  --color-danger-soft: #fbe4e1;
 
-  --radius-xs: 4px;
-  --radius-sm: 6px;
+  --radius-xs: 6px;
+  --radius-sm: 10px;
 }
 
 html,

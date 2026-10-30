@@ -9,7 +9,7 @@ const PUNTOS = [
 ]
 
 const claseCampo =
-  'h-12 w-full rounded-xs border border-line-strong bg-white pl-11 text-[17px] text-ink transition-shadow duration-150 focus:border-ink focus:ring-3 focus:ring-ink/12 focus:outline-none'
+  'h-12 w-full rounded-xs border border-line-strong bg-white pl-11 text-[17px] text-ink transition-shadow duration-150 focus:border-primary focus:ring-3 focus:ring-primary/15 focus:outline-none'
 
 const claseIcono = 'pointer-events-none absolute top-1/2 left-4 h-[18px] w-[18px] -translate-y-1/2 text-ink-faint'
 
@@ -40,7 +40,7 @@ export default function Login({ onLogin }) {
         <div className="flex items-center gap-3">
           <span
             aria-hidden="true"
-            className="flex h-11 w-11 items-center justify-center rounded-sm bg-accent font-serif text-[17px] font-semibold text-white"
+            className="flex h-11 w-11 items-center justify-center rounded-sm bg-primary font-serif text-[17px] font-semibold text-white"
           >
             GI
           </span>
@@ -57,7 +57,7 @@ export default function Login({ onLogin }) {
           <ul className="mt-8 space-y-3.5">
             {PUNTOS.map((punto) => (
               <li key={punto} className="flex items-center gap-3.5 text-[15px]">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xs bg-rail-active text-rail-mark">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xs bg-primary/30 text-primary-soft">
                   <Icono nombre="check" className="h-4 w-4" />
                 </span>
                 {punto}

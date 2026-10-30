@@ -8,7 +8,7 @@ function Historico({ configuraciones }) {
   return (
     <table className="w-full text-left text-[16px] text-ink">
       <thead>
-        <tr className="border-b border-line font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">
+        <tr className="border-b border-line text-[13px] font-medium text-ink-soft">
           <th className="py-3 pr-4 font-normal">Desde</th>
           <th className="py-3 pr-4 text-right font-normal">Cuota</th>
           <th className="py-3 pr-4 text-right font-normal">Mora</th>

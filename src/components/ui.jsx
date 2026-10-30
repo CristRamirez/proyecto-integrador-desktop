@@ -62,7 +62,7 @@ export function Boton({ icono, variante = 'primario', chico = false, children, c
 
 export function Etiqueta({ children, obligatorio }) {
   return (
-    <span className="mb-2 block font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">
+    <span className="mb-2 block text-[13px] font-medium text-ink-soft">
       {children}
       {obligatorio && <span className="ml-1 text-danger">*</span>}
     </span>
@@ -70,7 +70,7 @@ export function Etiqueta({ children, obligatorio }) {
 }
 
 export const claseInput =
-  'h-11 w-full rounded-xs border border-line-strong bg-white px-3.5 text-[16px] text-ink transition-shadow duration-150 focus:border-ink focus:ring-3 focus:ring-ink/12 focus:outline-none aria-invalid:border-danger aria-invalid:ring-3 aria-invalid:ring-danger/12 disabled:bg-accent-soft disabled:text-ink-soft'
+  'h-11 w-full rounded-xs border border-line-strong bg-white px-3.5 text-[16px] text-ink transition-shadow duration-150 focus:border-primary focus:ring-3 focus:ring-primary/15 focus:outline-none aria-invalid:border-danger aria-invalid:ring-3 aria-invalid:ring-danger/12 disabled:bg-accent-soft disabled:text-ink-soft'
 
 export function Buscador({ etiqueta = 'Buscar', className = '', ...props }) {
   return (
@@ -86,7 +86,7 @@ export function Buscador({ etiqueta = 'Buscar', className = '', ...props }) {
 }
 
 const claseCajaFiltro =
-  'flex h-11 items-center gap-2 rounded-xs border border-line-strong bg-white pl-3.5 transition-shadow duration-150 focus-within:border-ink focus-within:ring-3 focus-within:ring-ink/12'
+  'flex h-11 items-center gap-2 rounded-xs border border-line-strong bg-white pl-3.5 transition-shadow duration-150 focus-within:border-primary focus-within:ring-3 focus-within:ring-primary/15'
 
 const claseControlFiltro =
   'h-full min-w-0 flex-1 cursor-pointer bg-transparent pr-2 text-[16px] font-semibold text-ink outline-none'
@@ -111,7 +111,7 @@ export function FiltroFecha({ etiqueta, className = '', ...props }) {
   )
 }
 
-export const claseCabecera = 'border-b border-line bg-head font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase'
+export const claseCabecera = 'border-b border-line bg-head text-[13px] font-medium text-ink-soft'
 
 export const claseFila = 'border-b border-line-soft transition-colors duration-150 last:border-b-0 hover:bg-accent-soft/50'
 
@@ -132,7 +132,7 @@ export function Avatar({ grande = false, ...props }) {
   return (
     <span
       aria-hidden="true"
-      className={`flex shrink-0 items-center justify-center rounded-full bg-accent-soft font-mono text-ink-soft ${
+      className={`flex shrink-0 items-center justify-center rounded-full bg-primary-soft font-mono text-primary-ink ${
         grande ? 'h-14 w-14 text-[16px]' : 'h-9 w-9 text-[12px]'
       }`}
     >
@@ -194,7 +194,7 @@ export function Seccion({ titulo, tono, children }) {
 export function Dato({ etiqueta, className = '', children }) {
   return (
     <div className={className}>
-      <dt className="font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">{etiqueta}</dt>
+      <dt className="text-[13px] font-medium text-ink-soft">{etiqueta}</dt>
       <dd className="mt-1 text-[17px] text-ink">{children || children === 0 ? children : '—'}</dd>
     </div>
   )
@@ -210,7 +210,7 @@ const MARCAS = {
 export function Marca({ tono = 'neutro', children }) {
   return (
     <span
-      className={`inline-block rounded-xs px-2 py-0.5 font-mono text-[12px] tracking-[0.08em] uppercase ${MARCAS[tono]}`}
+      className={`inline-block rounded-full px-2.5 py-0.5 text-[13px] font-medium whitespace-nowrap ${MARCAS[tono]}`}
     >
       {children}
     </span>

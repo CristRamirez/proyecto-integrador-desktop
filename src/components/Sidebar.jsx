@@ -15,7 +15,7 @@ export default function Sidebar({ modulos = [], activo, onSelect }) {
       <div className="flex h-14 items-center gap-3 border-b border-rail-line px-4">
         <span
           aria-hidden="true"
-          className="flex h-8 w-8 items-center justify-center rounded-sm bg-accent font-serif text-[14px] font-semibold text-white"
+          className="flex h-8 w-8 items-center justify-center rounded-xs bg-primary font-serif text-[14px] font-semibold text-white"
         >
           GI
         </span>
@@ -40,7 +40,7 @@ export default function Sidebar({ modulos = [], activo, onSelect }) {
                     aria-current={activa ? 'page' : undefined}
                     className={`relative flex h-10.5 w-full cursor-pointer items-center gap-3 rounded-sm px-3 text-left text-[15px] transition-colors duration-150 ${
                       activa
-                        ? 'bg-rail-active font-semibold text-white before:absolute before:inset-y-2.5 before:left-0 before:w-[3px] before:rounded-full before:bg-rail-mark'
+                        ? 'bg-primary font-semibold text-white'
                         : 'text-rail-soft hover:bg-white/5 hover:text-white'
                     }`}
                   >

@@ -18,7 +18,7 @@ function totalAdeudado(cuotas) {
 function Resumen({ etiqueta, peligro = false, children }) {
   return (
     <div className="rounded-sm border border-line bg-surface px-5 py-4">
-      <p className="font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">{etiqueta}</p>
+      <p className="text-[13px] font-medium text-ink-soft">{etiqueta}</p>
       <p className={`mt-2 font-serif text-[28px] font-semibold ${peligro ? 'text-danger' : 'text-ink'}`}>{children}</p>
     </div>
   )
@@ -28,7 +28,7 @@ function Pagos({ pagos }) {
   return (
     <table className="w-full text-left text-[15px] text-ink">
       <thead>
-        <tr className="border-b border-line font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">
+        <tr className="border-b border-line text-[13px] font-medium text-ink-soft">
           <th className="py-2 pr-4 font-normal">Fecha</th>
           <th className="py-2 pr-4 font-normal">Medio</th>
           <th className="py-2 pr-4 font-normal">Comprobante</th>
@@ -164,7 +164,7 @@ export default function CuentaCorriente({ id, cuotaInicial, onVolver, etiquetaVo
         {etiquetaVolver}
       </Boton>
       <div ref={arriba} className="mt-3 mb-6">
-        <p className="font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">Cuenta corriente</p>
+        <p className="text-[13px] font-medium text-ink-soft">Cuenta corriente</p>
         <h1 className="mt-1 font-serif text-[28px] font-semibold text-ink">
           {interno.apellido}, {interno.nombre}
         </h1>
@@ -197,7 +197,7 @@ export default function CuentaCorriente({ id, cuotaInicial, onVolver, etiquetaVo
             <>
               <table className="w-full text-left text-[16px] text-ink">
                 <thead>
-                  <tr className="border-b border-line font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">
+                  <tr className="border-b border-line text-[13px] font-medium text-ink-soft">
                     <th className="py-3 pr-4 font-normal">Período</th>
                     <th className="py-3 pr-4 font-normal">Vencimiento</th>
                     <th className="py-3 pr-4 text-right font-normal">Total</th>

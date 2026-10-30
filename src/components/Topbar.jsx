@@ -13,7 +13,7 @@ function iniciales(nombre = '') {
 export default function Topbar({ seccion, usuario, onLogout }) {
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-line bg-surface pr-4 pl-8">
-      <p className="font-mono text-[12px] tracking-[0.16em] text-ink uppercase">
+      <p className="text-[15px] font-semibold text-ink">
         {seccion}
       </p>
 
@@ -25,7 +25,7 @@ export default function Topbar({ seccion, usuario, onLogout }) {
           </div>
           <span
             aria-hidden="true"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-accent-soft font-mono text-[12px] text-ink-soft"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-soft font-mono text-[12px] text-primary-ink"
           >
             {iniciales(usuario.nombre)}
           </span>

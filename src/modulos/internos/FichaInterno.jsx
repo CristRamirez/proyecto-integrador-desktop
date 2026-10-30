@@ -11,7 +11,7 @@ function Contactos({ contactos }) {
   return (
     <table className="w-full text-left text-[16px] text-ink">
       <thead>
-        <tr className="border-b border-line font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">
+        <tr className="border-b border-line text-[13px] font-medium text-ink-soft">
           <th className="py-3 pr-5 font-normal">Nombre</th>
           <th className="py-3 pr-5 font-normal">Parentesco</th>
           <th className="py-3 pr-5 font-normal">Teléfono</th>
@@ -40,7 +40,7 @@ function Legajos({ legajos }) {
   return (
     <table className="w-full text-left text-[16px] text-ink">
       <thead>
-        <tr className="border-b border-line font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">
+        <tr className="border-b border-line text-[13px] font-medium text-ink-soft">
           <th className="py-3 pr-5 font-normal">Legajo</th>
           <th className="py-3 pr-5 font-normal">Ingreso</th>
           <th className="py-3 pr-5 font-normal">Egreso</th>

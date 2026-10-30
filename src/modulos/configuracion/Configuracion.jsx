@@ -44,7 +44,7 @@ export default function Configuracion({ modulos = [], usuario }) {
                 onClick={() => setActual(p.id)}
                 aria-current={activa ? 'page' : undefined}
                 className={`-mb-px cursor-pointer border-b-2 px-4 py-3 text-[16px] transition-colors duration-150 ${
-                  activa ? 'border-ink font-semibold text-ink' : 'border-transparent text-ink-soft hover:text-ink'
+                  activa ? 'border-primary font-semibold text-ink' : 'border-transparent text-ink-soft hover:text-ink'
                 }`}
               >
                 {p.titulo}

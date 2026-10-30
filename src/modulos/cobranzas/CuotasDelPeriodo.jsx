@@ -22,7 +22,7 @@ const PUNTOS = { neutro: 'bg-accent', ok: 'bg-ok', aviso: 'bg-warn', peligro: 'b
 export function Indicador({ etiqueta, valor, detalle, tono = 'neutro', progreso }) {
   return (
     <div className="rounded-sm border border-line bg-surface px-5 py-4">
-      <p className="flex items-center gap-2 font-mono text-[12px] tracking-[0.14em] text-ink-soft uppercase">
+      <p className="flex items-center gap-2 text-[13px] font-medium text-ink-soft">
         <span className={`h-2 w-2 rounded-full ${PUNTOS[tono]}`} aria-hidden="true" />
         {etiqueta}
       </p>
