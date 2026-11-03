@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { listarAuditoria, opcionesDeAuditoria } from '../../api/auditoria'
 import { Aviso, Boton, Filtro, FiltroFecha, Paginado, Vacio, claseCabecera } from '../../components/ui'
-import { fechaHoraDesdeUtc, hoy, moneda } from '../internos/formato'
+import { fechaHoraDesdeUtc, hoy, moneda, tipoDeEgreso } from '../internos/formato'
 
 const POR_PAGINA = 50
 
@@ -43,6 +43,7 @@ function valorLegible(clave, valor) {
   if (typeof valor === 'object') return JSON.stringify(valor)
   if (typeof valor === 'boolean') return valor ? 'sí' : 'no'
   if (typeof valor === 'number' && IMPORTES.includes(clave)) return moneda(valor)
+  if (clave === 'tipo_egreso') return tipoDeEgreso(valor)
   return String(valor)
 }
 

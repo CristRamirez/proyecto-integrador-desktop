@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { bajaInterno } from '../../api/internos'
 import { Aviso, Boton, Campo, Seccion, claseInput } from '../../components/ui'
-import { hoy } from './formato'
+import { TIPOS_EGRESO, hoy } from './formato'
 
 const MAXIMO_MOTIVO = 500
 
-function validar({ motivo, fecha_egreso }, ingreso) {
+function validar({ motivo, fecha_egreso, tipo_egreso }, ingreso) {
   const errores = {}
+  if (!tipo_egreso) errores.tipo_egreso = 'Falta el tipo de egreso'
+
   if (!motivo.trim()) errores.motivo = 'Falta el motivo'
   else if (motivo.trim().length > MAXIMO_MOTIVO) errores.motivo = `Máximo ${MAXIMO_MOTIVO} caracteres`
 
@@ -23,13 +25,15 @@ function errorDelBack(err) {
       return { motivo: err.message }
     case 'FECHA_INVALIDA':
       return { fecha_egreso: err.message }
+    case 'TIPO_EGRESO_INVALIDO':
+      return { tipo_egreso: err.message }
     default:
       return { general: err.message }
   }
 }
 
 export default function BajaInterno({ interno, onCancelar, onBaja }) {
-  const [form, setForm] = useState({ motivo: '', fecha_egreso: hoy() })
+  const [form, setForm] = useState({ motivo: '', fecha_egreso: hoy(), tipo_egreso: '' })
   const [errores, setErrores] = useState({})
   const [guardando, setGuardando] = useState(false)
   const ingreso = interno.fecha_ingreso?.slice(0, 10)
@@ -49,7 +53,11 @@ export default function BajaInterno({ interno, onCancelar, onBaja }) {
 
     setGuardando(true)
     try {
-      const actualizado = await bajaInterno(interno.id, { motivo: form.motivo.trim(), fecha_egreso: form.fecha_egreso })
+      const actualizado = await bajaInterno(interno.id, {
+        motivo: form.motivo.trim(),
+        fecha_egreso: form.fecha_egreso,
+        tipo_egreso: form.tipo_egreso,
+      })
       onBaja(actualizado)
     } catch (err) {
       setErrores(errorDelBack(err))
@@ -81,6 +89,23 @@ export default function BajaInterno({ interno, onCancelar, onBaja }) {
               onChange={(e) => cambiar('fecha_egreso', e.target.value)}
               aria-invalid={!!errores.fecha_egreso}
             />
+          </Campo>
+          <Campo etiqueta="Tipo de egreso" obligatorio error={errores.tipo_egreso}>
+            <select
+              className={claseInput}
+              value={form.tipo_egreso}
+              onChange={(e) => cambiar('tipo_egreso', e.target.value)}
+              aria-invalid={!!errores.tipo_egreso}
+            >
+              <option value="" disabled>
+                Elegí el tipo
+              </option>
+              {TIPOS_EGRESO.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.etiqueta}
+                </option>
+              ))}
+            </select>
           </Campo>
           <Campo etiqueta="Motivo" obligatorio error={errores.motivo} className="col-span-3">
             <textarea

@@ -3,6 +3,17 @@ export function legajoActual(interno) {
   return interno.legajos?.at(-1)
 }
 
+export const TIPOS_EGRESO = [
+  { id: 'alta_terapeutica', etiqueta: 'Alta terapéutica' },
+  { id: 'abandono', etiqueta: 'Abandono' },
+  { id: 'derivacion', etiqueta: 'Derivación' },
+  { id: 'otro', etiqueta: 'Otro' },
+]
+
+export function tipoDeEgreso(id) {
+  return TIPOS_EGRESO.find((t) => t.id === id)?.etiqueta ?? '—'
+}
+
 export function hoy() {
   const d = new Date()
   const mes = String(d.getMonth() + 1).padStart(2, '0')

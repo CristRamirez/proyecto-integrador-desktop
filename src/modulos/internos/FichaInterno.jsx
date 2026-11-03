@@ -3,7 +3,7 @@ import { obtenerInterno } from '../../api/internos'
 import { Avatar, Aviso, Boton, Cargando, Dato, Estado, Marca, Seccion } from '../../components/ui'
 import BajaInterno from './BajaInterno'
 import ReingresoInterno from './ReingresoInterno'
-import { edad, fecha, fechaHora, legajoActual } from './formato'
+import { edad, fecha, fechaHora, legajoActual, tipoDeEgreso } from './formato'
 
 function Contactos({ contactos }) {
   if (!contactos?.length) return <p className="text-[16px] text-ink-soft">No tiene contactos cargados.</p>
@@ -44,6 +44,7 @@ function Legajos({ legajos }) {
           <th className="py-3 pr-5 font-normal">Legajo</th>
           <th className="py-3 pr-5 font-normal">Ingreso</th>
           <th className="py-3 pr-5 font-normal">Egreso</th>
+          <th className="py-3 pr-5 font-normal">Tipo de egreso</th>
           <th className="py-3 font-normal">Motivo del egreso</th>
         </tr>
       </thead>
@@ -53,6 +54,7 @@ function Legajos({ legajos }) {
             <td className="py-3 pr-5 font-mono font-semibold select-text">{l.numero}</td>
             <td className="py-3 pr-5">{fecha(l.fecha_ingreso ?? l.fecha_apertura)}</td>
             <td className="py-3 pr-5">{l.fecha_egreso ? fecha(l.fecha_egreso) : <Marca>Actual</Marca>}</td>
+            <td className="py-3 pr-5">{tipoDeEgreso(l.tipo_egreso)}</td>
             <td className="py-3">{l.motivo_egreso ?? '—'}</td>
           </tr>
         ))}
