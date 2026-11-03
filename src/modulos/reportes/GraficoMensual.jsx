@@ -21,14 +21,19 @@ function useAncho(ref) {
   return ancho
 }
 
-function barra(x, arriba, ancho, base) {
+function barra(x, arriba, ancho, base, redondeada = true) {
   const alto = base - arriba
   if (alto <= 0) return null
+  if (!redondeada) return `M${x},${base}V${arriba}H${x + ancho}V${base}Z`
   const r = Math.min(4, ancho / 2, alto)
   return `M${x},${base}V${arriba + r}A${r},${r} 0 0 1 ${x + r},${arriba}H${x + ancho - r}A${r},${r} 0 0 1 ${x + ancho},${arriba + r}V${base}Z`
 }
 
-function Ayuda({ etiqueta, lineas, indice, formato, izquierda }) {
+function totalDelMes(lineas, indice) {
+  return lineas.reduce((suma, l) => suma + (l.valores[indice] || 0), 0)
+}
+
+function Ayuda({ etiqueta, lineas, indice, formato, izquierda, apilado }) {
   return (
     <div
       className="pointer-events-none absolute z-10 rounded-sm border border-line bg-surface px-4 py-3 shadow-sm"
@@ -43,29 +48,56 @@ function Ayuda({ etiqueta, lineas, indice, formato, izquierda }) {
             <span className="truncate text-[13px] text-ink-soft">{linea.etiqueta}</span>
           </li>
         ))}
+        {apilado && (
+          <li className="flex items-center gap-2.5 border-t border-line-soft pt-1.5">
+            <span className="w-3 shrink-0" aria-hidden="true" />
+            <span className="font-mono text-[15px] font-semibold text-ink">
+              {formatear(totalDelMes(lineas, indice), formato)}
+            </span>
+            <span className="text-[13px] text-ink-soft">Total</span>
+          </li>
+        )}
       </ul>
     </div>
   )
 }
 
-export default function GraficoMensual({ serie, formato }) {
+export default function GraficoMensual({ serie, formato, apilado = false }) {
   const ref = useRef(null)
   const ancho = useAncho(ref)
   const [activo, setActivo] = useState(null)
   const { etiquetas, lineas } = serie
 
-  const { tope, marcas } = escala(Math.max(0, ...lineas.flatMap((l) => l.valores)))
+  const maximo = apilado
+    ? Math.max(0, ...etiquetas.map((_, i) => totalDelMes(lineas, i)))
+    : Math.max(0, ...lineas.flatMap((l) => l.valores))
+  const { tope, marcas } = escala(maximo)
   const anchoPlot = Math.max(0, ancho - MARGEN.izquierda - MARGEN.derecha)
   const altoPlot = ALTO - MARGEN.arriba - MARGEN.abajo
   const base = MARGEN.arriba + altoPlot
   const banda = etiquetas.length ? anchoPlot / etiquetas.length : 0
-  const anchoBarra = Math.max(
-    2,
-    Math.min(ANCHO_BARRA, (banda * 0.7 - HUECO * (lineas.length - 1)) / Math.max(1, lineas.length))
-  )
-  const anchoGrupo = anchoBarra * lineas.length + HUECO * (lineas.length - 1)
+  const columnas = apilado ? 1 : lineas.length
+  const anchoBarra = Math.max(2, Math.min(ANCHO_BARRA, (banda * 0.7 - HUECO * (columnas - 1)) / Math.max(1, columnas)))
+  const anchoGrupo = anchoBarra * columnas + HUECO * (columnas - 1)
   const y = (valor) => base - (Math.max(0, valor) / tope) * altoPlot
   const inicioBanda = (i) => MARGEN.izquierda + banda * i
+
+  function segmentos(i, inicioGrupo) {
+    if (!apilado) {
+      return lineas.map((linea, j) => ({
+        clave: linea.clave,
+        j,
+        d: barra(inicioGrupo + j * (anchoBarra + HUECO), y(linea.valores[i]), anchoBarra, base),
+      }))
+    }
+    const visibles = lineas.map((linea, j) => ({ linea, j })).filter(({ linea }) => linea.valores[i] > 0)
+    let acumulado = 0
+    return visibles.map(({ linea, j }, k) => {
+      const abajo = y(acumulado) - (k > 0 ? HUECO : 0)
+      acumulado += linea.valores[i]
+      return { clave: linea.clave, j, d: barra(inicioGrupo, y(acumulado), anchoBarra, abajo, k === visibles.length - 1) }
+    })
+  }
 
   let izquierdaAyuda = 0
   if (activo !== null) {
@@ -74,7 +106,7 @@ export default function GraficoMensual({ serie, formato }) {
   }
 
   return (
-    <div ref={ref} className="relative" onPointerLeave={() => setActivo(null)}>
+    <div ref={ref} className="relative" style={{ height: ALTO }} onPointerLeave={() => setActivo(null)}>
       {ancho > 0 && (
         <svg
           width={ancho}
@@ -113,10 +145,9 @@ export default function GraficoMensual({ serie, formato }) {
                 {activo === i && (
                   <rect x={inicioBanda(i)} y={MARGEN.arriba} width={banda} height={altoPlot} className="fill-accent-soft/70" />
                 )}
-                {lineas.map((linea, j) => {
-                  const d = barra(inicioGrupo + j * (anchoBarra + HUECO), y(linea.valores[i]), anchoBarra, base)
-                  return d && <path key={linea.clave} d={d} className={SERIES[j].relleno} />
-                })}
+                {segmentos(i, inicioGrupo).map(
+                  ({ clave, j, d }) => d && <path key={clave} d={d} className={SERIES[j].relleno} />
+                )}
                 <text x={centro} y={base + 20} textAnchor="middle" className="fill-ink-soft text-[13px]">
                   {mesCorto(etiqueta)}
                 </text>
@@ -150,14 +181,18 @@ export default function GraficoMensual({ serie, formato }) {
           indice={activo}
           formato={formato}
           izquierda={izquierdaAyuda}
+          apilado={apilado}
         />
       )}
     </div>
   )
 }
 
-export function TablaMensual({ serie, formato }) {
-  const { etiquetas, lineas } = serie
+export function TablaMensual({ serie, formato, apilado = false }) {
+  const { etiquetas } = serie
+  const lineas = apilado
+    ? [...serie.lineas, { clave: 'total', etiqueta: 'Total', valores: etiquetas.map((_, i) => totalDelMes(serie.lineas, i)) }]
+    : serie.lineas
   const totales = lineas.map((l) => l.valores.reduce((suma, v) => suma + v, 0))
 
   return (

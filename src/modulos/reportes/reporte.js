@@ -1,6 +1,17 @@
 import { moneda, monedaCorta, periodo, periodoActual } from '../internos/formato'
 
-export const LISTOS = ['balance']
+export const LISTOS = ['balance', 'cuenta-corriente']
+
+export const APILADOS = ['cuenta-corriente']
+
+export const NOTA_INDICADORES = {
+  'cuenta-corriente': 'Los porcentajes son sobre los internos con cuotas que vencen en el rango.',
+}
+
+export const BARRA_INDICADOR = {
+  en_mora: 'bg-danger',
+  al_dia: 'bg-ok',
+}
 
 export const RANGOS = [
   { id: 'mes', etiqueta: 'Mes', meses: 1 },

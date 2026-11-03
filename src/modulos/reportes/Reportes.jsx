@@ -4,6 +4,9 @@ import { Aviso, Boton, Cargando, Filtro, Vacio } from '../../components/ui'
 import { periodo, periodoActual } from '../internos/formato'
 import GraficoMensual, { TablaMensual } from './GraficoMensual'
 import {
+  APILADOS,
+  BARRA_INDICADOR,
+  NOTA_INDICADORES,
   RANGOS,
   SERIES,
   estaListo,
@@ -48,6 +51,7 @@ function Tarjetas({ reporte }) {
 function PorMes({ reporte }) {
   const [verTabla, setVerTabla] = useState(false)
   const formato = formatoDeLaSerie(reporte)
+  const apilado = APILADOS.includes(reporte.id)
   const { lineas } = reporte.serie
   const sinMovimientos = lineas.every((l) => l.valores.every((v) => !v))
 
@@ -76,19 +80,20 @@ function PorMes({ reporte }) {
       {sinMovimientos ? (
         <Vacio>No hubo movimientos en el rango elegido.</Vacio>
       ) : verTabla ? (
-        <TablaMensual serie={reporte.serie} formato={formato} />
+        <TablaMensual serie={reporte.serie} formato={formato} apilado={apilado} />
       ) : (
-        <GraficoMensual serie={reporte.serie} formato={formato} />
+        <GraficoMensual serie={reporte.serie} formato={formato} apilado={apilado} />
       )}
     </section>
   )
 }
 
-function Indicadores({ indicadores }) {
+function Indicadores({ indicadores, nota }) {
   return (
     <section className="rounded-sm border border-line bg-surface px-6 py-5">
-      <h2 className="mb-4 font-serif text-[20px] font-semibold text-ink">Indicadores</h2>
-      <ul className="grid grid-cols-3 gap-x-8 gap-y-5">
+      <h2 className="font-serif text-[20px] font-semibold text-ink">Indicadores</h2>
+      {nota && <p className="mt-1 text-[14px] text-ink-soft">{nota}</p>}
+      <ul className="mt-4 grid grid-cols-3 gap-x-8 gap-y-5">
         {indicadores.map((i) => (
           <li key={i.clave}>
             <p className="text-[14px] text-ink-soft">{i.etiqueta}</p>
@@ -98,7 +103,7 @@ function Indicadores({ indicadores }) {
             {i.formato === 'porcentaje' && (
               <div className="mt-2 h-1 rounded-full bg-line">
                 <div
-                  className={`h-1 rounded-full ${i.valor < 0 ? 'bg-danger' : 'bg-accent'}`}
+                  className={`h-1 rounded-full ${i.valor < 0 ? 'bg-danger' : (BARRA_INDICADOR[i.clave] ?? 'bg-accent')}`}
                   style={{ width: `${Math.min(Math.abs(i.valor), 100)}%` }}
                 />
               </div>
@@ -232,7 +237,9 @@ export default function Reportes() {
             <div className={`mt-6 space-y-4 transition-opacity ${cargando ? 'opacity-60' : ''}`} aria-busy={cargando}>
               <Tarjetas reporte={reporte} />
               <PorMes key={reporte.id} reporte={reporte} />
-              {reporte.indicadores.length > 0 && <Indicadores indicadores={reporte.indicadores} />}
+              {reporte.indicadores.length > 0 && (
+                <Indicadores indicadores={reporte.indicadores} nota={NOTA_INDICADORES[reporte.id]} />
+              )}
             </div>
           ) : (
             !error && (
