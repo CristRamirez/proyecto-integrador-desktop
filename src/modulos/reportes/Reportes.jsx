@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { generarReporte, listarReportes } from '../../api/reportes'
-import { Aviso, Boton, Cargando, Filtro, Vacio } from '../../components/ui'
+import { Aviso, Boton, Cargando, Filtro, Vacio, claseCabecera } from '../../components/ui'
 import { fecha, hoy, periodo, periodoActual } from '../internos/formato'
 import { exportarExcel, exportarPdf } from './exportar'
 import GraficoMensual, { TablaMensual } from './GraficoMensual'
@@ -13,6 +13,7 @@ import {
   agruparIndicadores,
   colorDeIndicador,
   columnasDeIndicadores,
+  esTextoLargo,
   estaListo,
   formatear,
   formatearCorto,
@@ -21,6 +22,8 @@ import {
   nombreDelRango,
   rangoDe,
   sinMovimientos,
+  tieneDetalle,
+  tieneSerie,
 } from './reporte'
 
 function Tarjeta({ tarjeta, color }) {
@@ -137,6 +140,64 @@ function ListaDeIndicadores({ indicadores, claves, columnas }) {
         </li>
       ))}
     </ul>
+  )
+}
+
+function ValorDeDetalle({ valor, formato }) {
+  if (!Array.isArray(valor)) return formatear(valor, formato)
+  return valor.map((v, k) => (
+    <Fragment key={k}>
+      {k > 0 && ', '}
+      <span className="whitespace-nowrap">{formatear(v, formato)}</span>
+    </Fragment>
+  ))
+}
+
+function claseDeCelda(valor, formato) {
+  if (formato !== 'texto') return 'text-right font-mono text-[15px] whitespace-nowrap tabular-nums print:text-[12px]'
+  return esTextoLargo(valor) ? 'min-w-32' : 'whitespace-nowrap'
+}
+
+function Detalle({ detalle }) {
+  const { columnas, filas } = detalle
+  const alinear = (c) => (c.formato === 'texto' ? '' : 'text-right')
+  return (
+    <section className="rounded-sm border border-line bg-surface px-6 py-5">
+      <div className="mb-4 flex items-baseline justify-between gap-4">
+        <h2 className="font-serif text-[20px] font-semibold text-ink">Detalle</h2>
+        <p className="text-[14px] text-ink-soft">
+          {filas.length} {filas.length === 1 ? 'registro' : 'registros'}
+        </p>
+      </div>
+      {filas.length === 0 ? (
+        <Vacio>No hay registros para el rango elegido.</Vacio>
+      ) : (
+        <div className="overflow-x-auto rounded-sm border border-line print:overflow-visible">
+          <table className="w-full text-left text-[16px] text-ink print:text-[13px]">
+            <thead>
+              <tr className={claseCabecera}>
+                {columnas.map((c) => (
+                  <th key={c.clave} className={`px-3 py-3 align-bottom font-normal print:px-2 ${alinear(c)}`}>
+                    {c.etiqueta}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filas.map((fila, i) => (
+                <tr key={i} className="border-b border-line-soft last:border-b-0 print:break-inside-avoid">
+                  {columnas.map((c) => (
+                    <td key={c.clave} className={`px-3 py-2.5 print:px-2 ${claseDeCelda(fila[c.clave], c.formato)}`}>
+                      <ValorDeDetalle valor={fila[c.clave]} formato={c.formato} />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
   )
 }
 
@@ -303,8 +364,9 @@ export default function Reportes() {
           {reporte ? (
             <div className={`mt-6 space-y-4 transition-opacity ${cargando ? 'opacity-60' : ''}`} aria-busy={cargando}>
               <Tarjetas reporte={reporte} />
-              <PorMes key={reporte.id} reporte={reporte} />
+              {tieneSerie(reporte) && <PorMes key={reporte.id} reporte={reporte} />}
               {reporte.indicadores.length > 0 && <Indicadores reporte={reporte} />}
+              {tieneDetalle(reporte) && <Detalle detalle={reporte.detalle} />}
             </div>
           ) : (
             !error && (

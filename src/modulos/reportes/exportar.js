@@ -3,10 +3,13 @@ import {
   APILADOS,
   NOTA_INDICADORES,
   agruparIndicadores,
+  formatear,
   formatoDeLaSerie,
   lineasDeLaTabla,
   nombreDelRango,
   sinMovimientos,
+  tieneDetalle,
+  tieneSerie,
   totalDeLaLinea,
 } from './reporte'
 
@@ -25,14 +28,17 @@ function celda(valor, formato, estilo = {}) {
   if (formato === 'moneda') return { value: Math.round(valor * 100) / 100, format: '"$" #,##0.00', ...estilo }
   if (formato === 'porcentaje') return { value: Math.round(valor * 1e4) / 1e6, format: '0.0%', ...estilo }
   if (formato === 'numero') return { value: valor, format: Number.isInteger(valor) ? '#,##0' : '#,##0.0', ...estilo }
-  return { value: String(valor), ...estilo }
+  return { value: formatear(valor, 'texto'), ...estilo }
 }
 
 function filasPorMes(reporte) {
-  if (sinMovimientos(reporte)) return [[{ value: 'No hubo movimientos en el rango elegido.', ...NOTA }]]
+  if (!tieneSerie(reporte)) return []
+  const titulo = [[], [{ value: 'Mes a mes', ...SECCION }]]
+  if (sinMovimientos(reporte)) return [...titulo, [{ value: 'No hubo movimientos en el rango elegido.', ...NOTA }]]
   const formato = formatoDeLaSerie(reporte)
   const lineas = lineasDeLaTabla(reporte.serie, APILADOS.includes(reporte.id))
   return [
+    ...titulo,
     [{ value: 'Mes', ...CABECERA }, ...lineas.map((l) => ({ value: l.etiqueta, align: 'right', ...CABECERA }))],
     ...reporte.serie.etiquetas.map((etiqueta, i) => [
       capitalizar(periodo(etiqueta)),
@@ -55,6 +61,18 @@ function filasDeIndicadores(reporte) {
   return filas
 }
 
+function filasDeDetalle(reporte) {
+  if (!tieneDetalle(reporte)) return []
+  const { columnas, filas } = reporte.detalle
+  const titulo = [[], [{ value: 'Detalle', ...SECCION }]]
+  if (filas.length === 0) return [...titulo, [{ value: 'No hay registros para el rango elegido.', ...NOTA }]]
+  return [
+    ...titulo,
+    columnas.map((c) => ({ value: c.etiqueta, ...(c.formato === 'texto' ? {} : { align: 'right' }), ...CABECERA })),
+    ...filas.map((fila) => columnas.map((c) => celda(fila[c.clave], c.formato))),
+  ]
+}
+
 function hojaDelReporte(reporte, rango) {
   return [
     [{ value: reporte.titulo, ...TITULO }],
@@ -63,15 +81,15 @@ function hojaDelReporte(reporte, rango) {
     [],
     [{ value: 'Totales', ...SECCION }],
     ...reporte.tarjetas.map((t) => [t.etiqueta, celda(t.valor, t.formato)]),
-    [],
-    [{ value: 'Mes a mes', ...SECCION }],
     ...filasPorMes(reporte),
     ...filasDeIndicadores(reporte),
+    ...filasDeDetalle(reporte),
   ]
 }
 
 function columnas(reporte) {
-  const cantidad = lineasDeLaTabla(reporte.serie, APILADOS.includes(reporte.id)).length
+  const lineas = lineasDeLaTabla(reporte.serie, APILADOS.includes(reporte.id)).length
+  const cantidad = Math.max(lineas, tieneDetalle(reporte) ? reporte.detalle.columnas.length - 1 : 0)
   return [{ width: 38 }, ...Array.from({ length: Math.max(cantidad, 1) }, () => ({ width: 20 }))]
 }
 

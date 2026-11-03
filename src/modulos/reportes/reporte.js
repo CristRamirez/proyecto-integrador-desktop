@@ -1,6 +1,6 @@
-import { moneda, monedaCorta, periodo, periodoActual } from '../internos/formato'
+import { fecha, moneda, monedaCorta, periodo, periodoActual } from '../internos/formato'
 
-export const LISTOS = ['balance', 'cuenta-corriente', 'clasificacion', 'medios-pago', 'egresos', 'egresos-internos']
+export const LISTOS = ['balance', 'cuenta-corriente', 'clasificacion', 'medios-pago', 'egresos', 'egresos-internos', 'deuda']
 
 export const APILADOS = ['cuenta-corriente', 'clasificacion', 'medios-pago', 'egresos', 'egresos-internos']
 
@@ -83,6 +83,14 @@ export function lineasDeLaTabla({ etiquetas, lineas }, apilado) {
   return [...lineas, { clave: 'total', etiqueta: 'Total', valores: etiquetas.map((_, i) => totalDelMes(lineas, i)) }]
 }
 
+export function tieneSerie({ serie }) {
+  return serie.lineas.length > 0
+}
+
+export function tieneDetalle({ detalle }) {
+  return Boolean(detalle?.columnas?.length)
+}
+
 export function sinMovimientos({ serie }) {
   return serie.lineas.every((l) => l.valores.every((v) => !v))
 }
@@ -123,12 +131,22 @@ export function mesCorto(etiqueta) {
 
 const DECIMAL = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 1 })
 
+const FECHA_ISO = /^\d{4}-\d{2}-\d{2}(?:[ T]|$)/
+const PERIODO_ISO = /^\d{4}-\d{2}$/
+
 export function formatear(valor, formato) {
   if (valor === null || valor === undefined) return '—'
   if (formato === 'moneda') return moneda(valor)
   if (formato === 'porcentaje') return `${DECIMAL.format(valor)} %`
   if (formato === 'numero') return DECIMAL.format(valor)
+  if (Array.isArray(valor)) return valor.map((v) => formatear(v, formato)).join(', ')
+  if (typeof valor === 'string' && FECHA_ISO.test(valor)) return fecha(valor)
+  if (typeof valor === 'string' && PERIODO_ISO.test(valor)) return `${mesCorto(valor)} ${valor.slice(0, 4)}`
   return String(valor)
+}
+
+export function esTextoLargo(valor) {
+  return Array.isArray(valor) || String(valor ?? '').length > 40
 }
 
 export function formatearCorto(valor, formato) {
