@@ -93,7 +93,7 @@ function Indicadores({ indicadores, nota }) {
     <section className="rounded-sm border border-line bg-surface px-6 py-5">
       <h2 className="font-serif text-[20px] font-semibold text-ink">Indicadores</h2>
       {nota && <p className="mt-1 text-[14px] text-ink-soft">{nota}</p>}
-      <ul className="mt-4 grid grid-cols-3 gap-x-8 gap-y-5">
+      <ul className={`mt-4 grid gap-x-8 gap-y-5 ${indicadores.length === 4 ? 'grid-cols-4' : 'grid-cols-3'}`}>
         {indicadores.map((i) => (
           <li key={i.clave}>
             <p className="text-[14px] text-ink-soft">{i.etiqueta}</p>
@@ -196,7 +196,7 @@ export default function Reportes() {
             <Filtro etiqueta="Reporte" value={elegido.id} onChange={(e) => filtrar('reporte', e.target.value)}>
               {reportes.map((r) => (
                 <option key={r.id} value={r.id} disabled={!estaListo(r)}>
-                  {r.codigo} · {r.titulo}
+                  {r.titulo}
                   {estaListo(r) ? '' : ' (próximamente)'}
                 </option>
               ))}

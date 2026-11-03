@@ -7,7 +7,7 @@ const ALTO = 300
 const MARGEN = { arriba: 12, derecha: 8, abajo: 48, izquierda: 84 }
 const ANCHO_BARRA = 24
 const HUECO = 2
-const ANCHO_AYUDA = 256
+const ANCHO_AYUDA = 320
 
 function useAncho(ref) {
   const [ancho, setAncho] = useState(0)
