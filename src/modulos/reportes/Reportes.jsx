@@ -8,6 +8,7 @@ import {
   NOTA_INDICADORES,
   RANGOS,
   SERIES,
+  agruparIndicadores,
   colorDeIndicador,
   columnasDeIndicadores,
   estaListo,
@@ -90,34 +91,49 @@ function PorMes({ reporte }) {
 }
 
 function Indicadores({ reporte }) {
-  const { indicadores } = reporte
   const nota = NOTA_INDICADORES[reporte.id]
   const claves = reporte.serie.lineas.map((l) => l.clave)
+  const grupos = agruparIndicadores(reporte)
   return (
     <section className="rounded-sm border border-line bg-surface px-6 py-5">
       <h2 className="font-serif text-[20px] font-semibold text-ink">Indicadores</h2>
       {nota && <p className="mt-1 text-[14px] text-ink-soft">{nota}</p>}
-      <ul className={`mt-4 grid items-end gap-x-8 gap-y-5 ${columnasDeIndicadores(indicadores.length)}`}>
-        {indicadores.map((i) => (
-          <li key={i.clave}>
-            <p className="text-[14px] text-ink-soft">{i.etiqueta}</p>
-            <p className={`mt-1 font-mono text-[20px] ${i.valor < 0 ? 'text-danger' : 'text-ink'}`}>
-              {formatear(i.valor, i.formato)}
-            </p>
-            {i.formato === 'porcentaje' ? (
-              <div className="mt-2 h-1 rounded-full bg-line">
-                <div
-                  className={`h-1 rounded-full ${colorDeIndicador(i, claves)}`}
-                  style={{ width: `${Math.min(Math.abs(i.valor), 100)}%` }}
-                />
-              </div>
-            ) : (
-              <div className="mt-2 h-1" aria-hidden="true" />
-            )}
-          </li>
-        ))}
-      </ul>
+      {grupos.map((grupo) => (
+        <div key={grupo.titulo ?? 'todos'} className="mt-5 first-of-type:mt-4">
+          {grupo.titulo && <h3 className="mb-3 text-[15px] font-semibold text-ink">{grupo.titulo}</h3>}
+          <ListaDeIndicadores
+            indicadores={grupo.indicadores}
+            claves={claves}
+            columnas={grupo.titulo ? 'grid-cols-5' : columnasDeIndicadores(grupo.indicadores.length)}
+          />
+        </div>
+      ))}
     </section>
+  )
+}
+
+function ListaDeIndicadores({ indicadores, claves, columnas }) {
+  return (
+    <ul className={`grid items-end gap-x-8 gap-y-5 ${columnas}`}>
+      {indicadores.map((i) => (
+        <li key={i.clave}>
+          <p className="text-[14px] text-ink-soft">{i.etiqueta}</p>
+          <p className={`mt-1 font-mono text-[20px] ${i.valor < 0 ? 'text-danger' : 'text-ink'}`}>
+            {formatear(i.valor, i.formato)}
+          </p>
+          {i.formato === 'porcentaje' ? (
+            <div className="mt-2 h-1 rounded-full bg-line">
+              <div
+                className={`h-1 rounded-full ${colorDeIndicador(i, claves)}`}
+                style={{ width: `${Math.min(Math.abs(i.valor), 100)}%` }}
+              />
+            </div>
+          ) : (
+            <div className="mt-2 h-1" aria-hidden="true" />
+          )}
+        </li>
+      ))}
+    </ul>
   )
 }
 

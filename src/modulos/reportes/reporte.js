@@ -1,12 +1,20 @@
 import { moneda, monedaCorta, periodo, periodoActual } from '../internos/formato'
 
-export const LISTOS = ['balance', 'cuenta-corriente', 'clasificacion', 'medios-pago']
+export const LISTOS = ['balance', 'cuenta-corriente', 'clasificacion', 'medios-pago', 'egresos']
 
-export const APILADOS = ['cuenta-corriente', 'clasificacion', 'medios-pago']
+export const APILADOS = ['cuenta-corriente', 'clasificacion', 'medios-pago', 'egresos']
 
 export const NOTA_INDICADORES = {
   'cuenta-corriente': 'Los porcentajes son sobre los internos con cuotas que vencen en el rango.',
   clasificacion: 'Muestran la situación de hoy de los internos activos, no dependen del rango elegido.',
+  egresos: 'Los porcentajes son sobre el total de egresos del rango, sin contar los anulados.',
+}
+
+const GRUPOS_INDICADORES = {
+  egresos: [
+    { prefijo: 'participacion_', titulo: 'Por medio de pago' },
+    { prefijo: 'categoria_', titulo: 'Categorías que más gastaron' },
+  ],
 }
 
 export const BARRA_INDICADOR = {
@@ -34,6 +42,14 @@ export function colorDeIndicador({ clave, valor }, clavesDeLaSerie) {
   if (BARRA_INDICADOR[clave]) return BARRA_INDICADOR[clave]
   const j = clavesDeLaSerie.indexOf(clave.replace(/^participacion_/, ''))
   return j === -1 ? 'bg-accent' : SERIES[j].fondo
+}
+
+export function agruparIndicadores({ id, indicadores }) {
+  const grupos = GRUPOS_INDICADORES[id]
+  if (!grupos) return [{ titulo: null, indicadores }]
+  return grupos
+    .map(({ prefijo, titulo }) => ({ titulo, indicadores: indicadores.filter((i) => i.clave.startsWith(prefijo)) }))
+    .filter((grupo) => grupo.indicadores.length > 0)
 }
 
 export function columnasDeIndicadores(cantidad) {
