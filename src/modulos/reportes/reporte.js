@@ -1,8 +1,8 @@
 import { moneda, monedaCorta, periodo, periodoActual } from '../internos/formato'
 
-export const LISTOS = ['balance', 'cuenta-corriente', 'clasificacion']
+export const LISTOS = ['balance', 'cuenta-corriente', 'clasificacion', 'medios-pago']
 
-export const APILADOS = ['cuenta-corriente', 'clasificacion']
+export const APILADOS = ['cuenta-corriente', 'clasificacion', 'medios-pago']
 
 export const NOTA_INDICADORES = {
   'cuenta-corriente': 'Los porcentajes son sobre los internos con cuotas que vencen en el rango.',
@@ -28,6 +28,19 @@ export const SERIES = [
   { fondo: 'bg-serie-4', relleno: 'fill-serie-4' },
   { fondo: 'bg-serie-5', relleno: 'fill-serie-5' },
 ]
+
+export function colorDeIndicador({ clave, valor }, clavesDeLaSerie) {
+  if (valor < 0) return 'bg-danger'
+  if (BARRA_INDICADOR[clave]) return BARRA_INDICADOR[clave]
+  const j = clavesDeLaSerie.indexOf(clave.replace(/^participacion_/, ''))
+  return j === -1 ? 'bg-accent' : SERIES[j].fondo
+}
+
+export function columnasDeIndicadores(cantidad) {
+  if (cantidad % 5 === 0) return 'grid-cols-5'
+  if (cantidad === 4) return 'grid-cols-4'
+  return 'grid-cols-3'
+}
 
 export function estaListo(reporte) {
   return reporte.disponible && LISTOS.includes(reporte.id)

@@ -5,10 +5,11 @@ import { periodo, periodoActual } from '../internos/formato'
 import GraficoMensual, { TablaMensual } from './GraficoMensual'
 import {
   APILADOS,
-  BARRA_INDICADOR,
   NOTA_INDICADORES,
   RANGOS,
   SERIES,
+  colorDeIndicador,
+  columnasDeIndicadores,
   estaListo,
   formatear,
   formatearCorto,
@@ -88,25 +89,30 @@ function PorMes({ reporte }) {
   )
 }
 
-function Indicadores({ indicadores, nota }) {
+function Indicadores({ reporte }) {
+  const { indicadores } = reporte
+  const nota = NOTA_INDICADORES[reporte.id]
+  const claves = reporte.serie.lineas.map((l) => l.clave)
   return (
     <section className="rounded-sm border border-line bg-surface px-6 py-5">
       <h2 className="font-serif text-[20px] font-semibold text-ink">Indicadores</h2>
       {nota && <p className="mt-1 text-[14px] text-ink-soft">{nota}</p>}
-      <ul className={`mt-4 grid gap-x-8 gap-y-5 ${indicadores.length === 4 ? 'grid-cols-4' : 'grid-cols-3'}`}>
+      <ul className={`mt-4 grid items-end gap-x-8 gap-y-5 ${columnasDeIndicadores(indicadores.length)}`}>
         {indicadores.map((i) => (
           <li key={i.clave}>
             <p className="text-[14px] text-ink-soft">{i.etiqueta}</p>
             <p className={`mt-1 font-mono text-[20px] ${i.valor < 0 ? 'text-danger' : 'text-ink'}`}>
               {formatear(i.valor, i.formato)}
             </p>
-            {i.formato === 'porcentaje' && (
+            {i.formato === 'porcentaje' ? (
               <div className="mt-2 h-1 rounded-full bg-line">
                 <div
-                  className={`h-1 rounded-full ${i.valor < 0 ? 'bg-danger' : (BARRA_INDICADOR[i.clave] ?? 'bg-accent')}`}
+                  className={`h-1 rounded-full ${colorDeIndicador(i, claves)}`}
                   style={{ width: `${Math.min(Math.abs(i.valor), 100)}%` }}
                 />
               </div>
+            ) : (
+              <div className="mt-2 h-1" aria-hidden="true" />
             )}
           </li>
         ))}
@@ -237,9 +243,7 @@ export default function Reportes() {
             <div className={`mt-6 space-y-4 transition-opacity ${cargando ? 'opacity-60' : ''}`} aria-busy={cargando}>
               <Tarjetas reporte={reporte} />
               <PorMes key={reporte.id} reporte={reporte} />
-              {reporte.indicadores.length > 0 && (
-                <Indicadores indicadores={reporte.indicadores} nota={NOTA_INDICADORES[reporte.id]} />
-              )}
+              {reporte.indicadores.length > 0 && <Indicadores reporte={reporte} />}
             </div>
           ) : (
             !error && (
