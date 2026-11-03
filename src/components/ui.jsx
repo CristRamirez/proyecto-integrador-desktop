@@ -20,6 +20,7 @@ const ICONOS = {
   derecha: 'M9 6l6 6-6 6',
   lapiz: 'M4 20h4L19 9l-4-4L4 16v4z',
   barras: 'M4 20h16M7 16v-4M12 16V8M17 16V5',
+  descarga: 'M12 4v11M7 10l5 5 5-5M5 20h14',
 }
 
 export function Icono({ nombre, className = 'h-5 w-5' }) {

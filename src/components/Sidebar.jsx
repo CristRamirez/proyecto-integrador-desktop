@@ -12,7 +12,7 @@ const ICONO_MODULO = {
 
 export default function Sidebar({ modulos = [], activo, onSelect }) {
   return (
-    <aside className="flex w-60 shrink-0 flex-col border-r border-rail-line bg-rail">
+    <aside className="flex w-60 shrink-0 flex-col border-r border-rail-line bg-rail print:hidden">
       <div className="flex h-14 items-center gap-3 border-b border-rail-line px-4">
         <span
           aria-hidden="true"

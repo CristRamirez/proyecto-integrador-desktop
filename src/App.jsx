@@ -82,11 +82,11 @@ export default function App() {
   const Pantalla = PANTALLAS[activo] ?? EnConstruccion
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full print:block print:h-auto">
       <Sidebar modulos={menu} activo={activo} onSelect={ir} />
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col print:block">
         <Topbar seccion={activo ? etiqueta(activo) : '—'} usuario={sesion.usuario} onLogout={salir} />
-        <main className="min-h-0 flex-1 overflow-y-auto">
+        <main className="min-h-0 flex-1 overflow-y-auto print:overflow-visible">
           <Pantalla key={activo} modulos={modulos} usuario={sesion.usuario} accion={accion} onIr={ir} />
         </main>
       </div>

@@ -12,7 +12,7 @@ function iniciales(nombre = '') {
 
 export default function Topbar({ seccion, usuario, onLogout }) {
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between border-b border-line bg-surface pr-4 pl-8">
+    <header className="flex h-14 shrink-0 items-center justify-between border-b border-line bg-surface pr-4 pl-8 print:hidden">
       <p className="text-[15px] font-semibold text-ink">
         {seccion}
       </p>

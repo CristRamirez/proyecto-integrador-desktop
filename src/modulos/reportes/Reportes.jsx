@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { generarReporte, listarReportes } from '../../api/reportes'
 import { Aviso, Boton, Cargando, Filtro, Vacio } from '../../components/ui'
-import { periodo, periodoActual } from '../internos/formato'
+import { fecha, hoy, periodo, periodoActual } from '../internos/formato'
+import { exportarExcel, exportarPdf } from './exportar'
 import GraficoMensual, { TablaMensual } from './GraficoMensual'
 import {
   APILADOS,
@@ -18,6 +19,7 @@ import {
   mesesDeCierre,
   nombreDelRango,
   rangoDe,
+  sinMovimientos,
 } from './reporte'
 
 function Tarjeta({ tarjeta, color }) {
@@ -55,13 +57,13 @@ function PorMes({ reporte }) {
   const formato = formatoDeLaSerie(reporte)
   const apilado = APILADOS.includes(reporte.id)
   const { lineas } = reporte.serie
-  const sinMovimientos = lineas.every((l) => l.valores.every((v) => !v))
+  const vacio = sinMovimientos(reporte)
 
   return (
-    <section className="rounded-sm border border-line bg-surface px-6 py-5">
+    <section className={`rounded-sm border border-line bg-surface px-6 py-5 ${verTabla ? '' : 'print:break-inside-avoid'}`}>
       <div className="mb-4 flex items-center justify-between gap-4">
         <h2 className="font-serif text-[20px] font-semibold text-ink">Mes a mes</h2>
-        {!sinMovimientos && (
+        {!vacio && (
           <div className="flex items-center gap-5">
             {lineas.length > 1 && !verTabla && (
               <ul className="flex items-center gap-4">
@@ -73,13 +75,13 @@ function PorMes({ reporte }) {
                 ))}
               </ul>
             )}
-            <Boton variante="secundario" chico onClick={() => setVerTabla((v) => !v)}>
+            <Boton variante="secundario" chico className="print:hidden" onClick={() => setVerTabla((v) => !v)}>
               {verTabla ? 'Ver gráfico' : 'Ver tabla'}
             </Boton>
           </div>
         )}
       </div>
-      {sinMovimientos ? (
+      {vacio ? (
         <Vacio>No hubo movimientos en el rango elegido.</Vacio>
       ) : verTabla ? (
         <TablaMensual serie={reporte.serie} formato={formato} apilado={apilado} />
@@ -95,7 +97,7 @@ function Indicadores({ reporte }) {
   const claves = reporte.serie.lineas.map((l) => l.clave)
   const grupos = agruparIndicadores(reporte)
   return (
-    <section className="rounded-sm border border-line bg-surface px-6 py-5">
+    <section className="rounded-sm border border-line bg-surface px-6 py-5 print:break-inside-avoid">
       <h2 className="font-serif text-[20px] font-semibold text-ink">Indicadores</h2>
       {nota && <p className="mt-1 text-[14px] text-ink-soft">{nota}</p>}
       {grupos.map((grupo) => (
@@ -143,6 +145,8 @@ export default function Reportes() {
   const [filtros, setFiltros] = useState({ reporte: null, rango: 'anio', cierre: periodoActual() })
   const [intento, setIntento] = useState(0)
   const [respuesta, setRespuesta] = useState(null)
+  const [exportando, setExportando] = useState(null)
+  const [aviso, setAviso] = useState(null)
 
   useEffect(() => {
     let vivo = true
@@ -173,6 +177,7 @@ export default function Reportes() {
 
   function filtrar(campo, valor) {
     setFiltros((f) => ({ ...f, [campo]: valor }))
+    setAviso(null)
   }
 
   if (!catalogo) {
@@ -205,16 +210,49 @@ export default function Reportes() {
   const error = !cargando && respuesta?.error
   const reporte = !error && respuesta?.reporte
 
+  async function exportar(tipo) {
+    setExportando(tipo)
+    setAviso(null)
+    try {
+      const destino = await (tipo === 'excel' ? exportarExcel : exportarPdf)(reporte, rango)
+      if (destino) setAviso({ tono: 'ok', texto: `Reporte guardado en ${destino}` })
+    } catch {
+      setAviso({
+        tono: 'peligro',
+        texto: 'No se pudo guardar el reporte. Si el archivo está abierto en otro programa, cerralo y probá de nuevo.',
+      })
+    } finally {
+      setExportando(null)
+    }
+  }
+
+  const sinExportar = !reporte || cargando || exportando !== null
+
   return (
-    <div className="mx-auto max-w-6xl px-8 py-8">
-      <h1 className="font-serif text-[28px] font-semibold text-ink">Reportes</h1>
-      <p className="mt-1 text-[16px] text-ink-soft">
-        {elegido ? `${elegido.titulo}, ${nombreDelRango(rango)}` : 'Todavía no hay reportes para consultar.'}
-      </p>
+    <div className="mx-auto max-w-6xl px-8 py-8 print:max-w-none print:p-0">
+      <div className="flex items-start justify-between gap-6">
+        <div className="min-w-0">
+          <h1 className="font-serif text-[28px] font-semibold text-ink">Reportes</h1>
+          <p className="mt-1 text-[16px] text-ink-soft">
+            {elegido ? `${elegido.titulo}, ${nombreDelRango(rango)}` : 'Todavía no hay reportes para consultar.'}
+          </p>
+          <p className="mt-1 hidden text-[14px] text-ink-soft print:block">Generado el {fecha(hoy())}</p>
+        </div>
+        {elegido && (
+          <div className="flex shrink-0 gap-2 print:hidden">
+            <Boton variante="secundario" icono="descarga" disabled={sinExportar} onClick={() => exportar('excel')}>
+              {exportando === 'excel' ? 'Exportando…' : 'Exportar a Excel'}
+            </Boton>
+            <Boton variante="secundario" icono="descarga" disabled={sinExportar} onClick={() => exportar('pdf')}>
+              {exportando === 'pdf' ? 'Exportando…' : 'Exportar a PDF'}
+            </Boton>
+          </div>
+        )}
+      </div>
 
       {elegido && (
         <>
-          <div className="mt-6 grid grid-cols-[minmax(0,1fr)_220px_260px] gap-3">
+          <div className="mt-6 grid grid-cols-[minmax(0,1fr)_220px_260px] gap-3 print:hidden">
             <Filtro etiqueta="Reporte" value={elegido.id} onChange={(e) => filtrar('reporte', e.target.value)}>
               {reportes.map((r) => (
                 <option key={r.id} value={r.id} disabled={!estaListo(r)}>
@@ -244,8 +282,14 @@ export default function Reportes() {
             </Filtro>
           </div>
 
+          {aviso && (
+            <div className="mt-6 print:hidden">
+              <Aviso tono={aviso.tono}>{aviso.texto}</Aviso>
+            </div>
+          )}
+
           {error && (
-            <div className="mt-6 flex items-center gap-4">
+            <div className="mt-6 flex items-center gap-4 print:hidden">
               <div className="flex-1">
                 <Aviso>{error}</Aviso>
               </div>

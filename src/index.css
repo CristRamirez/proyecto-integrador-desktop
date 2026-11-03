@@ -69,6 +69,18 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+@media print {
+  html,
+  body,
+  #root {
+    height: auto;
+  }
+
+  body {
+    background-color: var(--color-surface);
+  }
+}
+
 /* App de escritorio: sin selección accidental de chrome ni arrastre de imágenes */
 body {
   user-select: none;

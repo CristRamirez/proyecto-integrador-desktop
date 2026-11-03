@@ -1,13 +1,23 @@
 import { useEffect, useRef, useState } from 'react'
 import { claseCabecera } from '../../components/ui'
 import { periodo } from '../internos/formato'
-import { SERIES, escala, formatear, formatearEje, mesCorto } from './reporte'
+import {
+  SERIES,
+  escala,
+  formatear,
+  formatearEje,
+  lineasDeLaTabla,
+  mesCorto,
+  totalDeLaLinea,
+  totalDelMes,
+} from './reporte'
 
 const ALTO = 300
 const MARGEN = { arriba: 12, derecha: 8, abajo: 48, izquierda: 84 }
 const ANCHO_BARRA = 24
 const HUECO = 2
 const ANCHO_AYUDA = 320
+const ANCHO_EN_HOJA = 840
 
 function useAncho(ref) {
   const [ancho, setAncho] = useState(0)
@@ -27,10 +37,6 @@ function barra(x, arriba, ancho, base, redondeada = true) {
   if (!redondeada) return `M${x},${base}V${arriba}H${x + ancho}V${base}Z`
   const r = Math.min(4, ancho / 2, alto)
   return `M${x},${base}V${arriba + r}A${r},${r} 0 0 1 ${x + r},${arriba}H${x + ancho - r}A${r},${r} 0 0 1 ${x + ancho},${arriba + r}V${base}Z`
-}
-
-function totalDelMes(lineas, indice) {
-  return lineas.reduce((suma, l) => suma + (l.valores[indice] || 0), 0)
 }
 
 function Ayuda({ etiqueta, lineas, indice, formato, izquierda, apilado }) {
@@ -62,9 +68,10 @@ function Ayuda({ etiqueta, lineas, indice, formato, izquierda, apilado }) {
   )
 }
 
-export default function GraficoMensual({ serie, formato, apilado = false }) {
+function Grafico({ serie, formato, apilado, anchoFijo }) {
   const ref = useRef(null)
-  const ancho = useAncho(ref)
+  const medido = useAncho(ref)
+  const ancho = anchoFijo ?? medido
   const [activo, setActivo] = useState(null)
   const { etiquetas, lineas } = serie
 
@@ -106,14 +113,15 @@ export default function GraficoMensual({ serie, formato, apilado = false }) {
   }
 
   return (
-    <div ref={ref} className="relative" style={{ height: ALTO }} onPointerLeave={() => setActivo(null)}>
+    <div ref={ref} className="relative print:h-auto!" style={{ height: ALTO }} onPointerLeave={() => setActivo(null)}>
       {ancho > 0 && (
         <svg
           width={ancho}
           height={ALTO}
+          viewBox={`0 0 ${ancho} ${ALTO}`}
           role="img"
           aria-label={`Gráfico de barras por mes: ${lineas.map((l) => l.etiqueta).join(', ')}`}
-          className="block"
+          className="block h-auto w-full"
         >
           {marcas.map((marca) => (
             <g key={marca}>
@@ -188,12 +196,23 @@ export default function GraficoMensual({ serie, formato, apilado = false }) {
   )
 }
 
+export default function GraficoMensual({ serie, formato, apilado = false }) {
+  return (
+    <>
+      <div className="print:hidden">
+        <Grafico serie={serie} formato={formato} apilado={apilado} />
+      </div>
+      <div className="hidden print:block">
+        <Grafico serie={serie} formato={formato} apilado={apilado} anchoFijo={ANCHO_EN_HOJA} />
+      </div>
+    </>
+  )
+}
+
 export function TablaMensual({ serie, formato, apilado = false }) {
   const { etiquetas } = serie
-  const lineas = apilado
-    ? [...serie.lineas, { clave: 'total', etiqueta: 'Total', valores: etiquetas.map((_, i) => totalDelMes(serie.lineas, i)) }]
-    : serie.lineas
-  const totales = lineas.map((l) => l.valores.reduce((suma, v) => suma + v, 0))
+  const lineas = lineasDeLaTabla(serie, apilado)
+  const totales = lineas.map(totalDeLaLinea)
 
   return (
     <div className="overflow-x-auto rounded-sm border border-line">

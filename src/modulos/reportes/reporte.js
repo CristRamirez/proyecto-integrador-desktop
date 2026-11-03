@@ -58,6 +58,23 @@ export function columnasDeIndicadores(cantidad) {
   return 'grid-cols-3'
 }
 
+export function totalDelMes(lineas, indice) {
+  return lineas.reduce((suma, l) => suma + (l.valores[indice] || 0), 0)
+}
+
+export function totalDeLaLinea(linea) {
+  return linea.valores.reduce((suma, v) => suma + v, 0)
+}
+
+export function lineasDeLaTabla({ etiquetas, lineas }, apilado) {
+  if (!apilado) return lineas
+  return [...lineas, { clave: 'total', etiqueta: 'Total', valores: etiquetas.map((_, i) => totalDelMes(lineas, i)) }]
+}
+
+export function sinMovimientos({ serie }) {
+  return serie.lineas.every((l) => l.valores.every((v) => !v))
+}
+
 export function estaListo(reporte) {
   return reporte.disponible && LISTOS.includes(reporte.id)
 }
