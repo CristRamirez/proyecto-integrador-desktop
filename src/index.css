@@ -44,6 +44,12 @@
   --color-danger: #b42318;
   --color-danger-soft: #fbe4e1;
 
+  --color-serie-1: #b4532f;
+  --color-serie-2: #2f6db5;
+  --color-serie-3: #b07d12;
+  --color-serie-4: #93489e;
+  --color-serie-5: #008f7e;
+
   --radius-xs: 6px;
   --radius-sm: 10px;
 }

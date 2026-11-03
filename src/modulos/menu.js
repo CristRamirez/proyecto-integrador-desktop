@@ -1,4 +1,4 @@
-const ORDEN = ['internos', 'cobranzas', 'egresos']
+const ORDEN = ['internos', 'cobranzas', 'egresos', 'reportes']
 
 const DE_CONFIGURACION = ['parametros', 'usuarios', 'auditoria', 'configuracion']
 
