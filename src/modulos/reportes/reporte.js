@@ -1,19 +1,28 @@
 import { moneda, monedaCorta, periodo, periodoActual } from '../internos/formato'
 
-export const LISTOS = ['balance', 'cuenta-corriente', 'clasificacion', 'medios-pago', 'egresos']
+export const LISTOS = ['balance', 'cuenta-corriente', 'clasificacion', 'medios-pago', 'egresos', 'egresos-internos']
 
-export const APILADOS = ['cuenta-corriente', 'clasificacion', 'medios-pago', 'egresos']
+export const APILADOS = ['cuenta-corriente', 'clasificacion', 'medios-pago', 'egresos', 'egresos-internos']
+
+const FORMATO_DE_LA_SERIE = { 'egresos-internos': 'numero' }
+
+export const SERIE_DE_LA_TARJETA = { recuperados: 'alta_terapeutica', abandonos: 'abandono' }
 
 export const NOTA_INDICADORES = {
   'cuenta-corriente': 'Los porcentajes son sobre los internos con cuotas que vencen en el rango.',
   clasificacion: 'Muestran la situación de hoy de los internos activos, no dependen del rango elegido.',
   egresos: 'Los porcentajes son sobre el total de egresos del rango, sin contar los anulados.',
+  'egresos-internos': 'Los porcentajes son sobre los egresos del rango. Los egresos sin tipo cargado cuentan como Otro.',
 }
 
 const GRUPOS_INDICADORES = {
   egresos: [
     { prefijo: 'participacion_', titulo: 'Por medio de pago' },
     { prefijo: 'categoria_', titulo: 'Categorías que más gastaron' },
+  ],
+  'egresos-internos': [
+    { prefijo: 'porcentaje_', titulo: 'Por tipo de egreso' },
+    { claves: ['egresos', 'dias_promedio_estadia'], titulo: 'Egresos y estadía' },
   ],
 }
 
@@ -40,7 +49,7 @@ export const SERIES = [
 export function colorDeIndicador({ clave, valor }, clavesDeLaSerie) {
   if (valor < 0) return 'bg-danger'
   if (BARRA_INDICADOR[clave]) return BARRA_INDICADOR[clave]
-  const j = clavesDeLaSerie.indexOf(clave.replace(/^participacion_/, ''))
+  const j = clavesDeLaSerie.indexOf(clave.replace(/^(participacion|porcentaje)_/, ''))
   return j === -1 ? 'bg-accent' : SERIES[j].fondo
 }
 
@@ -48,7 +57,10 @@ export function agruparIndicadores({ id, indicadores }) {
   const grupos = GRUPOS_INDICADORES[id]
   if (!grupos) return [{ titulo: null, indicadores }]
   return grupos
-    .map(({ prefijo, titulo }) => ({ titulo, indicadores: indicadores.filter((i) => i.clave.startsWith(prefijo)) }))
+    .map(({ prefijo, claves, titulo }) => ({
+      titulo,
+      indicadores: indicadores.filter((i) => (prefijo ? i.clave.startsWith(prefijo) : claves.includes(i.clave))),
+    }))
     .filter((grupo) => grupo.indicadores.length > 0)
 }
 
@@ -133,15 +145,17 @@ export function formatearEje(valor, formato) {
 }
 
 export function formatoDeLaSerie(reporte) {
+  if (FORMATO_DE_LA_SERIE[reporte.id]) return FORMATO_DE_LA_SERIE[reporte.id]
   const claves = reporte.serie.lineas.map((l) => l.clave)
   return reporte.tarjetas.find((t) => claves.includes(t.clave))?.formato ?? 'moneda'
 }
 
-export function escala(maximo) {
+export function escala(maximo, enteros = false) {
   if (maximo <= 0) return { tope: 1, marcas: [0] }
   const paso0 = maximo / 4
   const potencia = 10 ** Math.floor(Math.log10(paso0))
-  const paso = [1, 2, 2.5, 5, 10].map((m) => m * potencia).find((p) => p >= paso0)
+  const candidato = [1, 2, 2.5, 5, 10].map((m) => m * potencia).find((p) => p >= paso0)
+  const paso = enteros ? Math.max(1, Math.ceil(candidato)) : candidato
   const cantidad = Math.ceil(maximo / paso)
   return { tope: paso * cantidad, marcas: Array.from({ length: cantidad + 1 }, (_, i) => i * paso) }
 }

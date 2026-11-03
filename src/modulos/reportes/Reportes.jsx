@@ -9,6 +9,7 @@ import {
   NOTA_INDICADORES,
   RANGOS,
   SERIES,
+  SERIE_DE_LA_TARJETA,
   agruparIndicadores,
   colorDeIndicador,
   columnasDeIndicadores,
@@ -45,7 +46,7 @@ function Tarjetas({ reporte }) {
   return (
     <div className="grid grid-cols-3 gap-4">
       {reporte.tarjetas.map((t) => {
-        const j = claves.indexOf(t.clave)
+        const j = claves.indexOf(SERIE_DE_LA_TARJETA[t.clave] ?? t.clave)
         return <Tarjeta key={t.clave} tarjeta={t} color={j === -1 ? null : SERIES[j].fondo} />
       })}
     </div>

@@ -78,7 +78,7 @@ function Grafico({ serie, formato, apilado, anchoFijo }) {
   const maximo = apilado
     ? Math.max(0, ...etiquetas.map((_, i) => totalDelMes(lineas, i)))
     : Math.max(0, ...lineas.flatMap((l) => l.valores))
-  const { tope, marcas } = escala(maximo)
+  const { tope, marcas } = escala(maximo, formato === 'numero')
   const anchoPlot = Math.max(0, ancho - MARGEN.izquierda - MARGEN.derecha)
   const altoPlot = ALTO - MARGEN.arriba - MARGEN.abajo
   const base = MARGEN.arriba + altoPlot
