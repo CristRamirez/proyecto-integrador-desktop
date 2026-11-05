@@ -41,7 +41,10 @@ function Pagos({ pagos }) {
         {pagos.map((p) => (
           <tr key={p.id} className="border-b border-line-soft last:border-b-0">
             <td className="py-2 pr-4">{fecha(p.fecha_pago)}</td>
-            <td className="py-2 pr-4 capitalize">{p.medio_pago}</td>
+            <td className="py-2 pr-4">
+              <span className="capitalize">{p.medio_pago}</span>
+              {p.obra_social && <span className="block text-[13px] text-ink-soft">{p.obra_social}</span>}
+            </td>
             <td className="py-2 pr-4 font-mono text-[14px] whitespace-nowrap select-text">{p.numero_comprobante ?? '—'}</td>
             <td className="py-2 pr-4">{p.observaciones ?? '—'}</td>
             <td className="py-2 pr-4 text-ink-soft">{p.registrado_por ?? '—'}</td>
