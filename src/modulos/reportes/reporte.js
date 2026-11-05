@@ -1,17 +1,28 @@
 import { fecha, moneda, monedaCorta, periodo, periodoActual } from '../internos/formato'
 
-export const LISTOS = ['balance', 'cuenta-corriente', 'clasificacion', 'medios-pago', 'egresos', 'egresos-internos', 'deuda']
+export const LISTOS = [
+  'balance',
+  'cuenta-corriente',
+  'clasificacion',
+  'medios-pago',
+  'egresos',
+  'obras-sociales',
+  'egresos-internos',
+  'deuda',
+]
 
 export const APILADOS = ['cuenta-corriente', 'clasificacion', 'medios-pago', 'egresos', 'egresos-internos']
 
 const FORMATO_DE_LA_SERIE = { 'egresos-internos': 'numero' }
 
-export const SERIE_DE_LA_TARJETA = { recuperados: 'alta_terapeutica', abandonos: 'abandono' }
+export const SERIE_DE_LA_TARJETA = { recuperados: 'alta_terapeutica', abandonos: 'abandono', total_cobrado: 'cobrado' }
 
 export const NOTA_INDICADORES = {
   'cuenta-corriente': 'Los porcentajes son sobre los internos con cuotas que vencen en el rango.',
   clasificacion: 'Muestran la situación de hoy de los internos activos, no dependen del rango elegido.',
   egresos: 'Los porcentajes son sobre el total de egresos del rango, sin contar los anulados.',
+  'obras-sociales':
+    'Los porcentajes son sobre lo cobrado con medio obra social en el rango. Solo aparecen las obras sociales que pagaron algo.',
   'egresos-internos': 'Los porcentajes son sobre los egresos del rango. Los egresos sin tipo cargado cuentan como Otro.',
 }
 
@@ -29,6 +40,7 @@ const GRUPOS_INDICADORES = {
 export const BARRA_INDICADOR = {
   en_mora: 'bg-danger',
   al_dia: 'bg-ok',
+  participacion_sin_identificar: 'bg-warn',
 }
 
 export const RANGOS = [
