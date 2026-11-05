@@ -251,7 +251,7 @@ export default function Usuarios({ usuario: actual }) {
         aria-busy={cargando}
       >
         {usuarios.length === 0 ? (
-          <Vacio cargando={!datos && cargando}>
+          <Vacio cargando={!datos && cargando} onReintentar={() => setIntento((n) => n + 1)}>
             {!datos
               ? cargando
                 ? 'Buscando usuarios…'

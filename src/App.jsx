@@ -69,7 +69,7 @@ export default function App() {
   if (cargando) {
     return (
       <div className="flex h-full items-center justify-center bg-paper">
-        <Cargando className="">Cargando…</Cargando>
+        <Cargando className="">Verificando tu sesión…</Cargando>
       </div>
     )
   }

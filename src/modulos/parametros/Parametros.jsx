@@ -83,7 +83,7 @@ export default function Parametros() {
 
   if (!datos) {
     return (
-      <Cargando>Cargando parámetros…</Cargando>
+      <Cargando onReintentar={() => setIntento((n) => n + 1)}>Buscando los valores vigentes de la cuota…</Cargando>
     )
   }
 

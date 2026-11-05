@@ -24,6 +24,7 @@ export default function Padron({
   const [resultado, setResultado] = useState(null)
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
+  const [intento, setIntento] = useState(0)
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -47,7 +48,7 @@ export default function Padron({
     return () => {
       vivo = false
     }
-  }, [q, estado, judicializado, pagina])
+  }, [q, estado, judicializado, pagina, intento])
 
   function filtrar(setter) {
     return (e) => {
@@ -107,8 +108,8 @@ export default function Padron({
         aria-busy={cargando}
       >
         {internos.length === 0 ? (
-          <Vacio cargando={cargando}>
-            {cargando ? 'Buscando…' : error ? 'No se pudo cargar el padrón.' : 'No hay internos que coincidan con la búsqueda.'}
+          <Vacio cargando={cargando} onReintentar={() => setIntento((n) => n + 1)}>
+            {cargando ? 'Buscando internos…' : error ? 'No se pudo cargar el padrón.' : 'No hay internos que coincidan con la búsqueda.'}
           </Vacio>
         ) : (
           <table className="w-full text-left text-[16px] text-ink">

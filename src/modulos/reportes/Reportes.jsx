@@ -243,7 +243,7 @@ export default function Reportes() {
   }
 
   if (!catalogo) {
-    return <Cargando>Cargando reportes…</Cargando>
+    return <Cargando onReintentar={() => setIntentoCatalogo((n) => n + 1)}>Buscando los reportes disponibles…</Cargando>
   }
 
   if (catalogo.error) {
@@ -371,7 +371,9 @@ export default function Reportes() {
           ) : (
             !error && (
               <div className="mt-6 rounded-sm border border-line bg-surface">
-                <Vacio cargando>Armando el reporte…</Vacio>
+                <Vacio cargando onReintentar={() => setIntento((n) => n + 1)}>
+                  Calculando el reporte del período elegido…
+                </Vacio>
               </div>
             )
           )}

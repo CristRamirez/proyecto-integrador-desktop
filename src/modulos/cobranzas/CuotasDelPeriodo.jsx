@@ -226,10 +226,10 @@ export default function CuotasDelPeriodo({ filtros, onFiltros, onAbrir, onPagar,
         aria-busy={cargando}
       >
         {cuotas.length === 0 ? (
-          <Vacio cargando={!datos && cargando}>
+          <Vacio cargando={!datos && cargando} onReintentar={() => setIntento((n) => n + 1)}>
             {!datos
               ? cargando
-                ? 'Buscando cuotas…'
+                ? 'Buscando las cuotas del período…'
                 : 'No se pudieron cargar las cuotas.'
               : datos.resumen?.cuotas === 0
                 ? `Todavía no se generaron las cuotas de ${periodo(periodoElegido)}.`

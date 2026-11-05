@@ -43,6 +43,7 @@ function porcentaje(parte, total) {
 
 function BloqueInternos() {
   const [datos, setDatos] = useState(null)
+  const [intento, setIntento] = useState(0)
 
   useEffect(() => {
     let vivo = true
@@ -56,13 +57,15 @@ function BloqueInternos() {
     return () => {
       vivo = false
     }
-  }, [])
+  }, [intento])
 
   return (
     <section>
       <h2 className={`mb-3 ${claseTitulo}`}>Internos</h2>
       {!datos ? (
-        <Cargando className="py-8">Cargando internos…</Cargando>
+        <Cargando className="py-8" onReintentar={() => setIntento((n) => n + 1)}>
+          Contando los internos…
+        </Cargando>
       ) : datos.error ? (
         <Aviso>{datos.error}</Aviso>
       ) : (
@@ -151,6 +154,7 @@ function CuotasVencidas({ cuotas, total, sinGenerar, actual, onIr }) {
 
 function BloqueCobranzas({ onIr }) {
   const [datos, setDatos] = useState(null)
+  const [intento, setIntento] = useState(0)
   const actual = periodoActual()
 
   useEffect(() => {
@@ -170,14 +174,16 @@ function BloqueCobranzas({ onIr }) {
     return () => {
       vivo = false
     }
-  }, [])
+  }, [intento])
 
   return (
     <>
       <section>
         <h2 className={`mb-3 ${claseTitulo}`}>Cobranzas de {periodo(actual)}</h2>
         {!datos ? (
-          <Cargando className="py-8">Cargando cobranzas…</Cargando>
+          <Cargando className="py-8" onReintentar={() => setIntento((n) => n + 1)}>
+            Calculando las cobranzas del mes…
+          </Cargando>
         ) : datos.enProgreso ? (
           <div className="rounded-sm border border-line bg-surface px-7 py-6">
             <Marca>En progreso</Marca>

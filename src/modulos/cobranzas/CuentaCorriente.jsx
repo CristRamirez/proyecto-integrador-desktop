@@ -152,7 +152,7 @@ export default function CuentaCorriente({ id, cuotaInicial, onVolver, etiquetaVo
 
   if (!datos) {
     return (
-      <Cargando>Cargando cuenta corriente…</Cargando>
+      <Cargando onReintentar={() => setIntento((n) => n + 1)}>Buscando las cuotas y los pagos del interno…</Cargando>
     )
   }
 

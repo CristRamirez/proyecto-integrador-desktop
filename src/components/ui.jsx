@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+
 const ICONOS = {
   mas: 'M12 5v14M5 12h14',
   cruz: 'M6 6l12 12M18 6L6 18',
@@ -158,16 +160,57 @@ export function Campo({ etiqueta, obligatorio, error, className = '', children }
   )
 }
 
-export function Cargando({ className = 'py-16', children }) {
+const DEMORA_LENTA = 4000
+const DEMORA_MUY_LENTA = 12000
+
+function AvisoDeDemora({ onReintentar }) {
+  const [etapa, setEtapa] = useState(0)
+  const [vuelta, setVuelta] = useState(0)
+
+  useEffect(() => {
+    const lenta = setTimeout(() => setEtapa(1), DEMORA_LENTA)
+    const muyLenta = setTimeout(() => setEtapa(2), DEMORA_MUY_LENTA)
+    return () => {
+      clearTimeout(lenta)
+      clearTimeout(muyLenta)
+    }
+  }, [vuelta])
+
+  if (etapa === 0) return null
+
+  function reintentar() {
+    setEtapa(0)
+    setVuelta((v) => v + 1)
+    onReintentar()
+  }
+
   return (
-    <div className={`flex items-center justify-center gap-3 text-[15px] text-ink-soft ${className}`} aria-busy="true">
-      <span className="h-5 w-5 animate-spin rounded-full border-2 border-line-strong border-t-ink" aria-hidden="true" />
-      {children}
+    <div className="flex flex-col items-center gap-3 text-center" role="status">
+      <p className="text-[14px] text-ink-faint">
+        {etapa === 1 ? 'El servidor está tardando un poco más de lo normal.' : 'Sigue sin responder. Puede ser la conexión.'}
+      </p>
+      {etapa === 2 && onReintentar && (
+        <Boton variante="secundario" chico onClick={reintentar}>
+          Reintentar
+        </Boton>
+      )}
     </div>
   )
 }
 
-export function Vacio({ cargando = false, children }) {
+export function Cargando({ className = 'py-16', onReintentar, children }) {
+  return (
+    <div className={`flex flex-col items-center justify-center gap-3 ${className}`} aria-busy="true">
+      <div className="flex items-center gap-3 text-[15px] text-ink-soft">
+        <span className="h-5 w-5 animate-spin rounded-full border-2 border-line-strong border-t-ink" aria-hidden="true" />
+        {children}
+      </div>
+      <AvisoDeDemora onReintentar={onReintentar} />
+    </div>
+  )
+}
+
+export function Vacio({ cargando = false, onReintentar, children }) {
   return (
     <div className="flex flex-col items-center gap-3 px-6 py-12 text-center" aria-busy={cargando || undefined}>
       {cargando ? (
@@ -178,6 +221,7 @@ export function Vacio({ cargando = false, children }) {
         </span>
       )}
       <p className="text-[16px] text-ink-soft">{children}</p>
+      {cargando && <AvisoDeDemora onReintentar={onReintentar} />}
     </div>
   )
 }

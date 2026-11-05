@@ -140,7 +140,7 @@ export default function FichaInterno({ id, inicial, guardado, onVolver, onEditar
 
   if (!interno) {
     return (
-      <Cargando>Cargando ficha…</Cargando>
+      <Cargando onReintentar={() => setIntento((n) => n + 1)}>Buscando la ficha del interno…</Cargando>
     )
   }
 

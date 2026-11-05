@@ -228,10 +228,10 @@ export default function Auditoria() {
         aria-busy={cargando}
       >
         {registros.length === 0 ? (
-          <Vacio cargando={!datos && cargando}>
+          <Vacio cargando={!datos && cargando} onReintentar={() => setIntento((n) => n + 1)}>
             {!datos
               ? cargando
-                ? 'Buscando registros…'
+                ? 'Buscando registros de auditoría…'
                 : 'No se pudo cargar el registro de auditoría.'
               : conFiltros
                 ? 'No hay registros que coincidan con los filtros.'

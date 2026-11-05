@@ -325,10 +325,10 @@ export default function Egresos() {
         aria-busy={cargando}
       >
         {egresos.length === 0 ? (
-          <Vacio cargando={!datos && cargando}>
+          <Vacio cargando={!datos && cargando} onReintentar={() => setIntento((n) => n + 1)}>
             {!datos
               ? cargando
-                ? 'Buscando egresos…'
+                ? 'Buscando los egresos del período…'
                 : 'No se pudieron cargar los egresos.'
               : categoria
                 ? 'No hay egresos de esa categoría en el período.'
