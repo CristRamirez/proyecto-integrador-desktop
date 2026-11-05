@@ -67,7 +67,7 @@ export default function Login({ onLogin }) {
         </div>
 
         <div className="border-t border-rail-line pt-5 font-mono text-[13px] tracking-[0.08em] text-rail-soft/80">
-          v1.0
+          v2.0
         </div>
       </section>
 

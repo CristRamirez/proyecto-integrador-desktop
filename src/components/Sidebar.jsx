@@ -60,7 +60,7 @@ export default function Sidebar({ modulos = [], activo, onSelect }) {
       </nav>
 
       <div className="border-t border-rail-line px-6 py-3 font-mono text-[12px] tracking-[0.08em] text-rail-soft/70">
-        v1.0
+        v2.0
       </div>
     </aside>
   )
