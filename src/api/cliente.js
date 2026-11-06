@@ -37,6 +37,9 @@ export async function pedir(ruta, { method = 'GET', cuerpo, conToken = true, hea
     throw err
   }
 
+  // Un DELETE que sale bien responde 204, sin cuerpo.
+  if (respuesta.status === 204) return { ok: true }
+
   let datos = null
   try {
     datos = await respuesta.json()

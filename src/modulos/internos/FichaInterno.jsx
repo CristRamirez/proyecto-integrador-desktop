@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { obtenerInterno } from '../../api/internos'
 import { Avatar, Aviso, Boton, Cargando, Dato, Estado, Marca, Seccion } from '../../components/ui'
 import BajaInterno from './BajaInterno'
+import NotasInterno from './NotasInterno'
 import ReingresoInterno from './ReingresoInterno'
 import { edad, fecha, fechaHora, legajoActual, tipoDeEgreso } from './formato'
 
@@ -234,6 +235,10 @@ export default function FichaInterno({ id, inicial, guardado, onVolver, onEditar
 
         <Seccion titulo="Historial de estados">
           <Historial historial={interno.historial} />
+        </Seccion>
+
+        <Seccion titulo="Notas">
+          <NotasInterno internoId={interno.id} />
         </Seccion>
 
         {interno.estado === 'egresado' &&

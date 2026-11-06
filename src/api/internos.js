@@ -48,3 +48,24 @@ export async function modificarInterno(id, cambios) {
   const { interno } = await pedir(`/internos/${encodeURIComponent(id)}`, { method: 'PUT', cuerpo: cambios })
   return interno
 }
+
+// Notas libres de la ficha, de la más nueva a la más vieja.
+export async function listarNotas(internoId) {
+  const { notas } = await pedir(`/internos/${encodeURIComponent(internoId)}/notas`)
+  return notas ?? []
+}
+
+export async function crearNota(internoId, texto) {
+  const { nota } = await pedir(`/internos/${encodeURIComponent(internoId)}/notas`, { method: 'POST', cuerpo: { texto } })
+  return nota
+}
+
+export async function modificarNota(internoId, notaId, texto) {
+  const ruta = `/internos/${encodeURIComponent(internoId)}/notas/${encodeURIComponent(notaId)}`
+  const { nota } = await pedir(ruta, { method: 'PUT', cuerpo: { texto } })
+  return nota
+}
+
+export async function eliminarNota(internoId, notaId) {
+  await pedir(`/internos/${encodeURIComponent(internoId)}/notas/${encodeURIComponent(notaId)}`, { method: 'DELETE' })
+}
