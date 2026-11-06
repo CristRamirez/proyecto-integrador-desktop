@@ -7,6 +7,7 @@ import { onSesionVencida } from './api/cliente'
 import Inicio from './modulos/inicio/Inicio'
 import Internos from './modulos/internos/Internos'
 import Cobranzas from './modulos/cobranzas/Cobranzas'
+import Ingresos from './modulos/ingresos/Ingresos'
 import Egresos from './modulos/egresos/Egresos'
 import Reportes from './modulos/reportes/Reportes'
 import Configuracion from './modulos/configuracion/Configuracion'
@@ -17,6 +18,7 @@ const PANTALLAS = {
   inicio: Inicio,
   internos: Internos,
   cobranzas: Cobranzas,
+  ingresos: Ingresos,
   egresos: Egresos,
   reportes: Reportes,
   configuracion: Configuracion,

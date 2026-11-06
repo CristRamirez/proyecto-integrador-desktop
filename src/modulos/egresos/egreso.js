@@ -1,3 +1,5 @@
+import { periodosRecientes } from '../internos/formato'
+
 export const CATEGORIAS_SUGERIDAS = ['sueldos', 'servicios', 'alimentos', 'medicamentos', 'mantenimiento', 'limpieza', 'impuestos']
 
 export const EGRESO_DESACTUALIZADO = ['EGRESO_ANULADO', 'EGRESO_YA_ANULADO', 'EGRESO_NO_ENCONTRADO']
@@ -12,4 +14,9 @@ export function nombreCategoria(categoria) {
 
 export function estaAnulado(egreso) {
   return egreso.estado === 'anulado'
+}
+
+export function opcionesDePeriodo(elegido) {
+  const lista = periodosRecientes()
+  return lista.includes(elegido) ? lista : [...lista, elegido].sort().reverse()
 }

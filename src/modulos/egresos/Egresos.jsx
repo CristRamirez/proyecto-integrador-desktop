@@ -3,14 +3,14 @@ import { listarCuotas } from '../../api/cobranzas'
 import { listarEgresos } from '../../api/egresos'
 import { Aviso, Boton, Estado, Filtro, Marca, Paginado, Vacio, claseCabecera } from '../../components/ui'
 import { Indicador } from '../cobranzas/CuotasDelPeriodo'
-import { fecha, fechaHoraDesdeUtc, moneda, monedaCorta, periodo, periodoActual, periodosRecientes } from '../internos/formato'
+import { fecha, fechaHoraDesdeUtc, moneda, monedaCorta, periodo, periodoActual } from '../internos/formato'
 import AnularEgreso from './AnularEgreso'
-import { capitalizar, estaAnulado, nombreCategoria } from './egreso'
+import { capitalizar, estaAnulado, nombreCategoria, opcionesDePeriodo } from './egreso'
 import FormularioEgreso from './FormularioEgreso'
 
 const POR_PAGINA = 20
 
-function SinDato({ etiqueta, detalle }) {
+export function SinDato({ etiqueta, detalle }) {
   return (
     <div className="rounded-sm border border-line bg-surface px-5 py-4">
       <p className="flex items-center gap-2 text-[13px] font-medium text-ink-soft">
@@ -59,10 +59,10 @@ function Balance({ resumen, cobrado, periodoElegido }) {
   )
 }
 
-function PorCategoria({ resumen, elegida, onElegir }) {
+export function PorCategoria({ titulo = 'Por categoría', resumen, elegida, onElegir }) {
   return (
     <section className="rounded-sm border border-line bg-surface px-6 py-5">
-      <h2 className="mb-3 font-serif text-[20px] font-semibold text-ink">Por categoría</h2>
+      <h2 className="mb-3 font-serif text-[20px] font-semibold text-ink">{titulo}</h2>
       <ul className="grid grid-cols-2 gap-x-8 gap-y-1">
         {resumen.por_categoria.map((c) => {
           const parte = resumen.total > 0 ? (c.total / resumen.total) * 100 : 0
@@ -154,11 +154,6 @@ function FilaEgreso({ egreso, seleccionado, onEditar, onAnular }) {
       </td>
     </tr>
   )
-}
-
-function opcionesDePeriodo(elegido) {
-  const lista = periodosRecientes()
-  return lista.includes(elegido) ? lista : [...lista, elegido].sort().reverse()
 }
 
 export default function Egresos() {
