@@ -1,23 +1,27 @@
 import { useState } from 'react'
 import Parametros from '../parametros/Parametros'
 import Auditoria from './Auditoria'
+import Claves from './Claves'
 import Usuarios from './Usuarios'
 
 const PESTANAS = [
   { id: 'parametros', titulo: 'Parámetros', Pantalla: Parametros },
   { id: 'usuarios', titulo: 'Usuarios', Pantalla: Usuarios },
   { id: 'auditoria', titulo: 'Auditoría', Pantalla: Auditoria },
+  { id: 'claves', titulo: 'Claves de integración', Pantalla: Claves, soloAdministrador: true },
 ]
 
 // Cada pestaña es un módulo del rol: se muestran solo las que tiene, así nadie
 // entra a una que el back le va a rechazar. Un módulo "configuracion" las abre todas.
-function pestanasDelRol(modulos) {
-  if (modulos.includes('configuracion')) return PESTANAS
-  return PESTANAS.filter((p) => modulos.includes(p.id))
+// Las claves no son un módulo: el back las deja solo al rol administrador.
+function pestanasDelRol(modulos, rol) {
+  const propias = modulos.includes('configuracion') ? PESTANAS : PESTANAS.filter((p) => modulos.includes(p.id))
+  const claves = rol === 'administrador' ? PESTANAS.filter((p) => p.soloAdministrador) : []
+  return [...new Set([...propias.filter((p) => !p.soloAdministrador), ...claves])]
 }
 
 export default function Configuracion({ modulos = [], usuario }) {
-  const visibles = pestanasDelRol(modulos)
+  const visibles = pestanasDelRol(modulos, usuario?.rol)
   const [actual, setActual] = useState(visibles[0]?.id)
   const pestana = visibles.find((p) => p.id === actual) ?? visibles[0]
 
