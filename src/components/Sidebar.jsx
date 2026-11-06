@@ -1,3 +1,4 @@
+import logo from '../assets/logo.png'
 import { etiqueta } from '../modulos/menu'
 import { Icono } from './ui'
 
@@ -15,12 +16,7 @@ export default function Sidebar({ modulos = [], activo, onSelect }) {
   return (
     <aside className="flex w-60 shrink-0 flex-col border-r border-rail-line bg-rail print:hidden">
       <div className="flex h-14 items-center gap-3 border-b border-rail-line px-4">
-        <span
-          aria-hidden="true"
-          className="flex h-8 w-8 items-center justify-center rounded-xs bg-primary font-serif text-[14px] font-semibold text-white"
-        >
-          BS
-        </span>
+        <img src={logo} alt="" className="h-9 w-9 shrink-0" />
         <span className="text-[15px] leading-tight font-semibold text-white">Buscando el Ser</span>
       </div>
 

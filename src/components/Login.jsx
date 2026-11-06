@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { login } from '../api/auth'
+import logo from '../assets/logo.png'
 import { Aviso, Etiqueta, Icono } from './ui'
 
 const PUNTOS = [
@@ -38,12 +39,7 @@ export default function Login({ onLogin }) {
     <div className="flex h-full bg-paper">
       <section className="hidden w-[44%] max-w-[640px] shrink-0 flex-col justify-between gap-10 bg-rail px-14 pt-14 pb-10 text-rail-soft lg:flex">
         <div className="flex items-center gap-3">
-          <span
-            aria-hidden="true"
-            className="flex h-11 w-11 items-center justify-center rounded-sm bg-primary font-serif text-[17px] font-semibold text-white"
-          >
-            BS
-          </span>
+          <img src={logo} alt="" className="h-12 w-12 shrink-0" />
           <span className="text-[16px] font-semibold text-white">Buscando el Ser</span>
         </div>
 
