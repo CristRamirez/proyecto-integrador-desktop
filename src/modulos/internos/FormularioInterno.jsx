@@ -425,7 +425,7 @@ export default function FormularioInterno({ interno, onCancelar, onGuardado, onA
                         placeholder="Hijo/a, sobrino/a…"
                       />
                     </Campo>
-                    <Campo etiqueta="Teléfono" error={e.telefono}>
+                    <Campo etiqueta="Teléfono" obligatorio error={e.telefono}>
                       <input
                         type="tel"
                         className={claseInput}
