@@ -20,9 +20,9 @@ function pestanasDelRol(modulos, rol) {
   return [...new Set([...propias.filter((p) => !p.soloAdministrador), ...claves])]
 }
 
-export default function Configuracion({ modulos = [], usuario }) {
+export default function Configuracion({ modulos = [], usuario, accion }) {
   const visibles = pestanasDelRol(modulos, usuario?.rol)
-  const [actual, setActual] = useState(visibles[0]?.id)
+  const [actual, setActual] = useState(visibles.find((p) => p.id === accion?.pestana)?.id ?? visibles[0]?.id)
   const pestana = visibles.find((p) => p.id === actual) ?? visibles[0]
 
   if (!pestana) {

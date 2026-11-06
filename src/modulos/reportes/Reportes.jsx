@@ -201,10 +201,10 @@ function Detalle({ detalle }) {
   )
 }
 
-export default function Reportes() {
+export default function Reportes({ accion }) {
   const [catalogo, setCatalogo] = useState(null)
   const [intentoCatalogo, setIntentoCatalogo] = useState(0)
-  const [filtros, setFiltros] = useState({ reporte: null, rango: 'anio', cierre: periodoActual() })
+  const [filtros, setFiltros] = useState({ reporte: accion?.reporte ?? null, rango: 'anio', cierre: periodoActual() })
   const [intento, setIntento] = useState(0)
   const [respuesta, setRespuesta] = useState(null)
   const [exportando, setExportando] = useState(null)

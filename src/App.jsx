@@ -36,6 +36,7 @@ export default function App() {
   const [sesion, setSesion] = useState(null)
   const [modulo, setModulo] = useState(null)
   const [accion, setAccion] = useState(null)
+  const [navegacion, setNavegacion] = useState(0)
   const [cargando, setCargando] = useState(true)
 
   useEffect(() => {
@@ -57,9 +58,12 @@ export default function App() {
 
   useEffect(() => onSesionVencida(salir), [])
 
+  // Una acción (abrir las vencidas, un reporte) vuelve a montar la pantalla aunque
+  // ya se esté en ese módulo, para que la tome; el menú solo cambia de módulo.
   function ir(destino, nuevaAccion = null) {
     setModulo(destino)
     setAccion(nuevaAccion)
+    if (nuevaAccion) setNavegacion((n) => n + 1)
   }
 
   function salir() {
@@ -87,9 +91,15 @@ export default function App() {
     <div className="flex h-full print:block print:h-auto">
       <Sidebar modulos={menu} activo={activo} onSelect={ir} />
       <div className="flex min-w-0 flex-1 flex-col print:block">
-        <Topbar seccion={activo ? etiqueta(activo) : '—'} usuario={sesion.usuario} onLogout={salir} />
+        <Topbar
+          seccion={activo ? etiqueta(activo) : '—'}
+          usuario={sesion.usuario}
+          modulos={modulos}
+          onIr={ir}
+          onLogout={salir}
+        />
         <main className="min-h-0 flex-1 overflow-y-auto print:overflow-visible">
-          <Pantalla key={activo} modulos={modulos} usuario={sesion.usuario} accion={accion} onIr={ir} />
+          <Pantalla key={`${activo}:${navegacion}`} modulos={modulos} usuario={sesion.usuario} accion={accion} onIr={ir} />
         </main>
       </div>
     </div>

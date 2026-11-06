@@ -1,3 +1,4 @@
+import Campana from '../modulos/avisos/Campana'
 import { Icono } from './ui'
 
 function iniciales(nombre = '') {
@@ -10,7 +11,7 @@ function iniciales(nombre = '') {
     .toUpperCase()
 }
 
-export default function Topbar({ seccion, usuario, onLogout }) {
+export default function Topbar({ seccion, usuario, modulos, onIr, onLogout }) {
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-line bg-surface pr-4 pl-8 print:hidden">
       <p className="text-[15px] font-semibold text-ink">
@@ -18,6 +19,9 @@ export default function Topbar({ seccion, usuario, onLogout }) {
       </p>
 
       <div className="flex items-center">
+        <div className="mr-4 border-r border-line pr-4">
+          <Campana modulos={modulos} usuario={usuario} onIr={onIr} />
+        </div>
         <div className="flex items-center gap-3">
           <div className="text-right leading-tight">
             <p className="text-[14px] font-semibold text-ink">{usuario.nombre}</p>
