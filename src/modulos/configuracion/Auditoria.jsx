@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { listarAuditoria, opcionesDeAuditoria } from '../../api/auditoria'
+import { listarMediosPago } from '../../api/cobranzas'
+import { listarObrasSociales } from '../../api/internos'
 import { Aviso, Boton, Filtro, FiltroFecha, Paginado, Vacio, claseCabecera } from '../../components/ui'
 import { fechaHoraDesdeUtc, hoy, moneda, tipoDeEgreso } from '../internos/formato'
 
@@ -33,36 +35,48 @@ function nombreDe(diccionario, clave) {
   return diccionario[clave] ?? clave.charAt(0).toUpperCase() + clave.slice(1).replaceAll('_', ' ')
 }
 
-function campo(clave) {
-  return clave.replaceAll('_', ' ')
+const CAMPOS = {
+  obra_social_id: 'obra social',
+  medio_pago_id: 'medio de pago',
+  medio_pago: 'medio de pago',
 }
 
-function valorLegible(clave, valor) {
+function campo(clave) {
+  return CAMPOS[clave] ?? clave.replaceAll('_', ' ')
+}
+
+function valorLegible(clave, valor, catalogos = {}) {
   if (valor === null || valor === undefined || valor === '') return '—'
   if (Array.isArray(valor)) return valor.length > 6 ? `${valor.length} elementos` : valor.join(', ') || '—'
   if (typeof valor === 'object') return JSON.stringify(valor)
   if (typeof valor === 'boolean') return valor ? 'sí' : 'no'
   if (typeof valor === 'number' && IMPORTES.includes(clave)) return moneda(valor)
   if (clave === 'tipo_egreso') return tipoDeEgreso(valor)
+  if (catalogos[clave]?.[valor]) return catalogos[clave][valor]
   return String(valor)
 }
 
-function Cambio({ clave, cambio }) {
+function Cambio({ clave, cambio, catalogos }) {
   if (cambio && typeof cambio === 'object' && 'antes' in cambio) {
     return (
       <>
-        {valorLegible(clave, cambio.antes)} → <span className="font-semibold">{valorLegible(clave, cambio.despues)}</span>
+        {valorLegible(clave, cambio.antes, catalogos)} →{' '}
+        <span className="font-semibold">{valorLegible(clave, cambio.despues, catalogos)}</span>
       </>
     )
   }
   // Los datos sensibles (salud) llegan sin valores, solo marcados como modificados.
   if (cambio && typeof cambio === 'object' && cambio.modificado) return <span className="italic">se modificó</span>
-  return valorLegible(clave, cambio)
+  return valorLegible(clave, cambio, catalogos)
+}
+
+function porId(lista) {
+  return Object.fromEntries(lista.map((item) => [item.id, item.nombre]))
 }
 
 // En las modificaciones el back manda { cambios: { campo: { antes, despues } } } solo
 // con lo que cambió; en el resto, los datos sueltos de la operación.
-function Detalle({ detalle }) {
+function Detalle({ detalle, catalogos }) {
   if (!detalle || typeof detalle !== 'object') return <span className="text-ink-soft">—</span>
 
   const { cambios, ...resto } = detalle
@@ -74,19 +88,19 @@ function Detalle({ detalle }) {
     <ul className="space-y-0.5 text-[14px]">
       {filasCambios.map(([clave, cambio]) => (
         <li key={`c-${clave}`}>
-          <span className="text-ink-soft">{campo(clave)}:</span> <Cambio clave={clave} cambio={cambio} />
+          <span className="text-ink-soft">{campo(clave)}:</span> <Cambio clave={clave} cambio={cambio} catalogos={catalogos} />
         </li>
       ))}
       {filasResto.map(([clave, valor]) => (
         <li key={`r-${clave}`}>
-          <span className="text-ink-soft">{campo(clave)}:</span> {valorLegible(clave, valor)}
+          <span className="text-ink-soft">{campo(clave)}:</span> {valorLegible(clave, valor, catalogos)}
         </li>
       ))}
     </ul>
   )
 }
 
-function FilaRegistro({ registro }) {
+function FilaRegistro({ registro, catalogos }) {
   return (
     <tr className="border-b border-line-soft align-top last:border-b-0">
       <td className="px-4 py-3 font-mono text-[14px] whitespace-nowrap">{fechaHoraDesdeUtc(registro.fecha)}</td>
@@ -106,7 +120,7 @@ function FilaRegistro({ registro }) {
         {registro.entidad_id && <span className="ml-1 font-mono text-[13px] text-ink-soft">#{registro.entidad_id}</span>}
       </td>
       <td className="px-4 py-3">
-        <Detalle detalle={registro.detalle} />
+        <Detalle detalle={registro.detalle} catalogos={catalogos} />
       </td>
     </tr>
   )
@@ -117,6 +131,7 @@ const SIN_FILTROS = { usuarioId: '', accion: '', entidad: '', desde: '', hasta: 
 export default function Auditoria() {
   const [filtros, setFiltros] = useState(SIN_FILTROS)
   const [opciones, setOpciones] = useState({ acciones: [], entidades: [], usuarios: [] })
+  const [catalogos, setCatalogos] = useState({})
   const [intento, setIntento] = useState(0)
   const [respuesta, setRespuesta] = useState(null)
   const clave = `${Object.values(filtros).join('|')}|${intento}`
@@ -127,6 +142,13 @@ export default function Auditoria() {
     opcionesDeAuditoria()
       .then((o) => vivo && setOpciones(o))
       .catch(() => {})
+    Promise.allSettled([listarObrasSociales(), listarMediosPago()]).then(([obras, medios]) => {
+      if (!vivo) return
+      setCatalogos({
+        obra_social_id: obras.status === 'fulfilled' ? porId(obras.value) : {},
+        medio_pago_id: medios.status === 'fulfilled' ? porId(medios.value) : {},
+      })
+    })
     return () => {
       vivo = false
     }
@@ -250,7 +272,7 @@ export default function Auditoria() {
             </thead>
             <tbody>
               {registros.map((r) => (
-                <FilaRegistro key={r.id} registro={r} />
+                <FilaRegistro key={r.id} registro={r} catalogos={catalogos} />
               ))}
             </tbody>
           </table>
